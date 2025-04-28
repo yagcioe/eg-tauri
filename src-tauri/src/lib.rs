@@ -45,8 +45,8 @@ fn gurobi_private() -> std::result::Result<(), grb::Error> {
 
     // Querying variables by name
     assert_eq!(model.get_var_by_name(&x1_name)?, Some(x1));
-    
-    return  Ok(());
+
+    return Ok(());
 }
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
@@ -64,6 +64,8 @@ fn greet(name: &str) -> String {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![greet, gurobi])
         .run(tauri::generate_context!())
