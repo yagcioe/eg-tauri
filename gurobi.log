@@ -1,0 +1,32 @@
+
+Gurobi 12.0.1 (win64) logging started Tue Apr 29 00:43:50 2025
+
+Set parameter Username
+Set parameter LicenseID to value 2657103
+Academic license - for non-commercial use only - expires 2026-04-26
+Gurobi Optimizer version 12.0.1 build v12.0.1rc0 (win64 - Windows 10.0 (19045.2))
+
+CPU model: AMD Ryzen 9 7900X3D 12-Core Processor, instruction set [SSE2|AVX|AVX2|AVX512]
+Thread count: 12 physical cores, 24 logical processors, using up to 24 threads
+
+Optimize a model with 3 rows, 2 columns and 6 nonzeros
+Model fingerprint: 0xdfb036b6
+Variable types: 1 continuous, 1 integer (0 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 4e+00]
+  Objective range  [1e+00, 8e+00]
+  Bounds range     [0e+00, 0e+00]
+  RHS range        [1e+01, 3e+01]
+Presolve removed 1 rows and 0 columns
+Presolve time: 0.01s
+Presolved: 2 rows, 2 columns, 4 nonzeros
+Variable types: 0 continuous, 2 integer (0 binary)
+Found heuristic solution: objective 59.0000000
+
+Explored 0 nodes (0 simplex iterations) in 0.02 seconds (0.00 work units)
+Thread count was 24 (of 24 available processors)
+
+Solution count 1: 59 
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 5.900000000000e+01, best bound 5.900000000000e+01, gap 0.0000%
