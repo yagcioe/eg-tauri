@@ -1,9 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { LoadModelService } from './load-model.service';
-import { FileHandle } from '@tauri-apps/plugin-fs';
+
 @Component({
   selector: 'app-load-model-details',
   imports: [MatInputModule, MatDatepickerModule],
@@ -13,10 +13,21 @@ import { FileHandle } from '@tauri-apps/plugin-fs';
 export class LoadModelDetailsComponent {
   private loadModelService = inject(LoadModelService);
 
-  protected selectedFile = signal<FileHandle | undefined>(undefined);
+  protected selectedFile = signal<{
+    filePath: string;
+    fileName: string;
+} | undefined>(undefined);
 
-  protected async openFile(): Promise<void> {
+  protected openFile(): void {
     this.loadModelService.openFile().then(file => this.selectedFile.set(file ?? undefined))
+  }
+
+  protected onFileChange($event: Event) {
+    const files = ($event.target as any)?.files as FileList | null | undefined;
+
+    console.log(files);
+    const file = files?.item(0)
+    file?.webkitRelativePath
   }
 
 }

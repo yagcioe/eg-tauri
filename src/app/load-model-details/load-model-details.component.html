@@ -1,8 +1,8 @@
 <h1>Einzelgesprächsplanung</h1>
 <div>Neues Modell anlegen:</div>
 <div class="flex-default">
-    <div>
-        <input type="file" accept=".json" />
+    <div class="flex-row">
+        <button (click)="openFile()">Datei auswählen</button> <span>{{selectedFile()?.fileName}}</span>
     </div>
     <mat-form-field>
         <mat-label>Tag</mat-label>

@@ -5,11 +5,13 @@
 
 
 export const commands = {
-async greet(name: string) : Promise<string> {
-    return await TAURI_INVOKE("greet", { name });
-},
-async gurobi() : Promise<void> {
-    await TAURI_INVOKE("gurobi");
+async openJsonFile(filepath: string) : Promise<Result<ModelFileDto, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("open_json_file", { filepath }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
 }
 }
 
@@ -23,7 +25,7 @@ async gurobi() : Promise<void> {
 
 /** user-defined types **/
 
-
+export type ModelFileDto = { name: string; age: number }
 
 /** tauri-specta globals **/
 
