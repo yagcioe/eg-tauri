@@ -1,0 +1,25 @@
+@use "variables/distance.scss" as distance;
+@use "variables/media" as media;
+
+@mixin flex-base {
+    display: flex;
+    gap: distance.$default-gap;
+}
+
+.flex-row {
+    @include flex-base();
+    flex-direction: row;
+}
+
+.flex-col {
+    @include flex-base();
+    flex-direction: column;
+}
+
+.flex-default {
+    @include flex-base();
+    flex-direction: column;
+    @include media.gt-small() {
+        flex-direction: row;
+    }
+}

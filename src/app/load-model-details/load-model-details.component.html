@@ -1,6 +1,18 @@
 <h1>Einzelgesprächsplanung</h1>
 <div>Neues Modell anlegen:</div>
+<div class="flex-default">
+    <div>
+        <input type="file" accept=".json" />
+    </div>
+    <mat-form-field>
+        <mat-label>Tag</mat-label>
+        <input matInput placeholder="DD.MM.YYYY" [matDatepicker]="picker">
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
 
-<button (click)="openFile()">openFile</button>
-
-
+    <mat-form-field>
+        <mat-label>Modellname</mat-label>
+        <input matInput />
+    </mat-form-field>
+</div>

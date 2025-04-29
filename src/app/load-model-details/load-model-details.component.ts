@@ -1,23 +1,22 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
-import { open as openFileDialog } from '@tauri-apps/plugin-dialog';
-import { open as openFile, BaseDirectory } from '@tauri-apps/plugin-fs';
 
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { LoadModelService } from './load-model.service';
+import { FileHandle } from '@tauri-apps/plugin-fs';
 @Component({
   selector: 'app-load-model-details',
-  imports: [MatInputModule],
+  imports: [MatInputModule, MatDatepickerModule],
   templateUrl: './load-model-details.component.html',
   styleUrl: './load-model-details.component.css'
 })
 export class LoadModelDetailsComponent {
+  private loadModelService = inject(LoadModelService);
+
+  protected selectedFile = signal<FileHandle | undefined>(undefined);
+
   protected async openFile(): Promise<void> {
-    const filePath = await openFileDialog({ multiple: false, directory: false });
-    if(!filePath) return;
-
-    const file = await openFile(filePath, { read: true })
-    
-    console.log(file);
-
+    this.loadModelService.openFile().then(file => this.selectedFile.set(file ?? undefined))
   }
 
 }

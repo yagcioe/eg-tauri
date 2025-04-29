@@ -1,0 +1,36 @@
+$screen-tiny: 480px;
+$screen-small: 720px;
+$screen-medium: 960px;
+$screen-large: 1240px;
+$scree-xlarge: 1920px;
+
+@mixin gt-tiny {
+   @media (width > $screen-tiny) {
+       @content;
+   }
+}
+
+@mixin gt-small {
+   @media (width > $screen-small) {
+       @content;
+   }
+}
+
+@mixin gt-medium {
+   @media (width > $screen-medium) {
+       @content;
+   }
+}
+
+
+@mixin gt-large {
+   @media (width > $screen-large) {
+       @content;
+   }
+}
+
+@mixin gt-xlarge {
+    @media (width > $screen-xlarge) {
+        @content;
+    }
+ }
