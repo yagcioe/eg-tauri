@@ -3,10 +3,12 @@
   "version": "0.1.0",
   "scripts": {
     "ng": "ng",
+    "dev": "tauri dev",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "gen-specta":"cd src-tauri && cargo run --no-default-features --features gen-bindings"
   },
   "private": true,
   "dependencies": {

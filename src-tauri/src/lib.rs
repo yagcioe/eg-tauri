@@ -1,4 +1,7 @@
 use grb::{ModelSense::Minimize, *};
+use serde::{Deserialize, Serialize};
+use specta_typescript::Typescript;
+use tauri_specta::{collect_commands, Builder};
 
 fn gurobi_private() -> std::result::Result<(), grb::Error> {
     let mut model = Model::new("model1")?;
@@ -51,6 +54,7 @@ fn gurobi_private() -> std::result::Result<(), grb::Error> {
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
+#[specta::specta]
 fn gurobi() {
     gurobi_private().unwrap()
 }
@@ -61,8 +65,17 @@ fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
 
-#[cfg_attr(mobile, tauri::mobile_entry_point)]
-pub fn run() {
+fn generate_bindings() {
+    let mut builder = Builder::<tauri::Wry>::new()
+        // Then register them (separated by a comma)
+        .commands(collect_commands![gurobi]);
+        // <- Only export on non-release builds
+        builder
+            .export(Typescript::default(), "../src/specta-bindings.ts")
+            .expect("Failed to export typescript bindings");
+}
+
+fn initalize_app(){
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
@@ -70,4 +83,15 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![greet, gurobi])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
+
+    #[cfg(feature = "gen-bindings")] 
+    generate_bindings();
+
+    #[cfg(feature="run-app")]
+    initalize_app();
+
 }
