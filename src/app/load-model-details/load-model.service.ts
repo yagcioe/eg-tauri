@@ -1,18 +1,20 @@
 import { Injectable } from '@angular/core';
 import { open as openFileDialog } from '@tauri-apps/plugin-dialog';
 import { sep } from "@tauri-apps/api/path"
-import { commands } from '../../specta-bindings2';
+import { commands } from '../../specta-bindings/specta-bindings2';
+import { DemoEvent, events } from '../../specta-bindings/specta-bindings';
+import { toObservable } from '../shared/tauri-specta-rxjs-interop';
 @Injectable({
   providedIn: 'root'
 })
 export class LoadModelService {
 
-  public async openFile(): Promise<{ filePath: string, fileName: string } | null> {
+  public async openFile() {
     const filePath = await openFileDialog({
       multiple: false, directory: false, filters: [
         {
-          name: "JSON",
-          extensions: ["json"]
+          name: "CSV",
+          extensions: ["csv"]
         }
       ]
     });
@@ -20,10 +22,14 @@ export class LoadModelService {
 
     const split = filePath.split(sep());
     const fileName = split[split.length - 1];
-    commands.openJsonFile(filePath).then(result => result.status === "ok" ? console.log(result.data) : console.log(result.error));
-    return {
-      filePath,
-      fileName
-    }
+    return { fileName, content: await commands.openCsvFile(filePath) };
+  }
+
+  public listenEvent() {
+    return toObservable(events.demoEvent)
+  }
+
+  public publishValue(event: DemoEvent): Promise<void> {
+    return events.demoEvent.emit(event)
   }
 }

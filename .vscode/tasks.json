@@ -11,11 +11,9 @@
             // see https://code.visualstudio.com/docs/editor/tasks#_can-a-background-task-be-used-as-a-prelaunchtask-in-launchjson
             "isBackground": true,
             // change this to your `beforeDevCommand`:
-            "command": "npm",
+            "command": "ng",
             "args": [
-                "run",
-                "tauri",
-                "dev"
+                "serve"
             ]
         },
         {

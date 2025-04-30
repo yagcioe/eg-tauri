@@ -1,0 +1,1 @@
+pub mod tauri_specta_extensions;

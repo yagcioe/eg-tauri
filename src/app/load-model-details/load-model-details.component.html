@@ -2,17 +2,23 @@
 <div>Neues Modell anlegen:</div>
 <div class="flex-default">
     <div class="flex-row">
-        <button (click)="openFile()">Datei auswählen</button> <span>{{selectedFile()?.fileName}}</span>
+        <button (click)="openFile()">Datei auswählen</button> <span>{{selectedFileName()}}</span>
     </div>
-    <mat-form-field>
-        <mat-label>Tag</mat-label>
-        <input matInput placeholder="DD.MM.YYYY" [matDatepicker]="picker">
-        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
-    </mat-form-field>
 
     <mat-form-field>
-        <mat-label>Modellname</mat-label>
-        <input matInput />
+        <mat-label>Tag</mat-label>
+        <input matInput placeholder="DD.MM.YYYY" [matDatepicker]="picker" [matDatepickerFilter]="dateFilter" [formControl]="form.controls.date" >
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker [startAt]="minDate()"></mat-datepicker>
     </mat-form-field>
+
+    <mat-form-field >
+        <mat-label>Modellname</mat-label>
+        <input matInput [formControl]="form.controls.modelName" />
+    </mat-form-field>
+
+
+    <div class="flex-row">
+        <button [disabled]="!idFormValid()" (click)="createModel()">Modell erstellen</button>
+    </div>
 </div>

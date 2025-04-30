@@ -5,9 +5,9 @@
 
 
 export const commands = {
-async openJsonFile(filepath: string) : Promise<Result<ModelFileDto, string>> {
+async openCsvFile(filepath: string) : Promise<Result<Partial<{ [key in string]: MyKonParticipationExportCsvRow[] }>, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("open_json_file", { filepath }) };
+    return { status: "ok", data: await TAURI_INVOKE("open_csv_file", { filepath }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -25,7 +25,7 @@ async openJsonFile(filepath: string) : Promise<Result<ModelFileDto, string>> {
 
 /** user-defined types **/
 
-export type ModelFileDto = { name: string; age: number }
+export type MyKonParticipationExportCsvRow = { participation_id: number; status: string; user_id: number; full_name: string; email: string; event_id: number; event_name: string; event_beginn_date: string }
 
 /** tauri-specta globals **/
 

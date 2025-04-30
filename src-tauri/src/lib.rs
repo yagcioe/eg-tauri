@@ -1,9 +1,17 @@
+mod extensions;
 mod load_model_details;
 
 use grb::{ModelSense::Minimize, *};
 use serde::{Deserialize, Serialize};
+use specta::Type;
 use specta_typescript::Typescript;
-use tauri_specta::{collect_commands, Builder};
+use tauri::Listener;
+use tauri_specta::{collect_commands, collect_events, Builder, Event};
+
+#[derive(Serialize, Deserialize, Debug, Clone, Type, Event)]
+pub struct DemoEvent {
+    name: String,
+}
 
 fn gurobi_private() -> std::result::Result<(), grb::Error> {
     let mut model = Model::new("model1")?;
@@ -14,8 +22,8 @@ fn gurobi_private() -> std::result::Result<(), grb::Error> {
 
     // add linear constraints
     let c0 = model.add_constr("c0", c!(x1 + 2 * x2 >= -14))?;
-    let c1 = model.add_constr("c1", c!(-4 * x1 - x2 <= -33))?;
-    let c2 = model.add_constr("c2", c!(2 * x1 <= 20 - x2))?;
+    model.add_constr("c1", c!(-4 * x1 - x2 <= -33))?;
+    model.add_constr("c2", c!(2 * x1 <= 20 - x2))?;
 
     // model is lazily updated by default
     assert_eq!(
@@ -61,7 +69,6 @@ fn gurobi() {
     gurobi_private().unwrap()
 }
 
-
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
 #[specta::specta]
@@ -69,33 +76,52 @@ fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
 
-fn generate_bindings() {
-
-    Builder::<tauri::Wry>::new()
-        // Then register them (separated by a comma)
-        .commands(collect_commands![greet, gurobi])
-        .export(Typescript::default(), "../src/specta-bindings.ts")
-        .expect("Failed to export typescript bindings");
-
-    load_model_details::generate_speacta_bindings();
-}
 
 fn initalize_app() {
+    let builder = Builder::<tauri::Wry>::new()
+        // Then register them (separated by a comma)
+        .commands(collect_commands![greet, gurobi])
+        .events(collect_events![DemoEvent]);
+    builder
+        .export(
+            Typescript::default(),
+            "../src/specta-bindings/specta-bindings.ts",
+        )
+        .expect("Failed to export typescript bindings");
+
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(load_model_details::init())
-        .invoke_handler(tauri::generate_handler![greet, gurobi, load_model_details::open_json_file])
+        .invoke_handler(tauri::generate_handler![
+            greet,
+            gurobi,
+            load_model_details::open_csv_file
+        ])
+        .setup(move |app| {
+            builder.mount_events(app);
+
+            DemoEvent::listen(app, |event| {
+                let dbg_event = extensions::tauri_specta_extensions::DebuggableTypedEvent(event);
+                dbg!(dbg_event);
+            });
+
+            app.listen("demo-event", |event| {
+                dbg!(event);
+            });
+
+            app.listen_any("any", |event_any| {
+                dbg!(event_any);
+            });
+
+            Ok(())
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    #[cfg(feature = "gen-bindings")]
-    generate_bindings();
-
-    #[cfg(feature = "run-app")]
     initalize_app();
 }

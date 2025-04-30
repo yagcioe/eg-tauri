@@ -16,6 +16,11 @@ async gurobi() : Promise<void> {
 /** user-defined events **/
 
 
+export const events = __makeEvents__<{
+demoEvent: DemoEvent
+}>({
+demoEvent: "demo-event"
+})
 
 /** user-defined constants **/
 
@@ -23,7 +28,7 @@ async gurobi() : Promise<void> {
 
 /** user-defined types **/
 
-
+export type DemoEvent = { name: string }
 
 /** tauri-specta globals **/
 
