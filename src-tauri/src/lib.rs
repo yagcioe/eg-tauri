@@ -1,5 +1,6 @@
 mod extensions;
 mod load_model_details;
+mod models;
 
 use grb::{ModelSense::Minimize, *};
 use serde::{Deserialize, Serialize};
@@ -76,11 +77,16 @@ fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
 
-
 fn initalize_app() {
     let builder = Builder::<tauri::Wry>::new()
         // Then register them (separated by a comma)
-        .commands(collect_commands![greet, gurobi])
+        .commands(collect_commands![
+            greet,
+            gurobi,
+            load_model_details::open_csv_file,
+            load_model_details::load_model_json_file,
+            load_model_details::save_model_json_file
+        ])
         .events(collect_events![DemoEvent]);
     builder
         .export(
@@ -93,11 +99,12 @@ fn initalize_app() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
-        .plugin(load_model_details::init())
         .invoke_handler(tauri::generate_handler![
             greet,
             gurobi,
-            load_model_details::open_csv_file
+            load_model_details::open_csv_file,
+            load_model_details::load_model_json_file,
+            load_model_details::save_model_json_file
         ])
         .setup(move |app| {
             builder.mount_events(app);

@@ -1,8 +1,14 @@
+mod model_file_dto;
+mod my_kon_participation_export_csv_row;
+
+use super::models::model_dto::ModelDto;
 use chrono::NaiveDate;
-use serde::{Deserialize, Serialize};
+use my_kon_participation_export_csv_row::MyKonParticipationExportCsvRow;
+use specta::Type;
 use specta_typescript::Typescript;
 use std::collections::HashMap;
-use std::fs::File;
+use std::fs::{File, OpenOptions};
+use std::io::{Read, Write};
 use std::path::Path;
 use tauri::utils::config;
 use tauri::{
@@ -11,28 +17,12 @@ use tauri::{
 };
 use tauri_specta::collect_commands;
 
-#[derive(Serialize, Deserialize, specta::Type, Debug)]
-pub struct MyKonParticipationExportCsvRow {
-    pub participation_id: u32,
-    pub status: String,
-    pub user_id: u32,
-    pub full_name: String,
-    pub email: String,
-    pub event_id: u32,
-    pub event_name: String,
-    pub event_beginn_date: NaiveDate,
-}
-
-#[derive(Serialize, Deserialize, specta::Type, Debug)]
-pub struct ModelFileDto {
-    name: String,
-    age: i32,
-}
-
 #[tauri::command]
 #[specta::specta]
-pub fn open_csv_file(filepath: &str) -> Result<HashMap<NaiveDate, Vec<MyKonParticipationExportCsvRow>>, String> {
-    let path = Path::new(filepath);
+pub fn open_csv_file(
+    filepath: String,
+) -> Result<HashMap<NaiveDate, Vec<MyKonParticipationExportCsvRow>>, String> {
+    let path = Path::new(&filepath);
     let display = path.display();
 
     let file = match File::open(&path) {
@@ -43,7 +33,7 @@ pub fn open_csv_file(filepath: &str) -> Result<HashMap<NaiveDate, Vec<MyKonParti
     let mut reader = csv::ReaderBuilder::new()
         .has_headers(false)
         .from_reader(file);
-    let mut grouped_rows:HashMap<NaiveDate, Vec<MyKonParticipationExportCsvRow>> = HashMap::new();
+    let mut grouped_rows: HashMap<NaiveDate, Vec<MyKonParticipationExportCsvRow>> = HashMap::new();
     for result in reader.records() {
         let row = result.map_err(|_| "failed to parse row")?;
 
@@ -59,25 +49,63 @@ pub fn open_csv_file(filepath: &str) -> Result<HashMap<NaiveDate, Vec<MyKonParti
             event_name: row[6].to_string(),
             event_beginn_date: row[7].parse().map_err(|_| "failed to parse beginn date")?,
         };
-        grouped_rows.entry(application.event_beginn_date).or_default().push(application);
+        grouped_rows
+            .entry(application.event_beginn_date)
+            .or_default()
+            .push(application);
     }
     return Ok(grouped_rows);
 }
 
-pub fn init<R: Runtime>() -> TauriPlugin<R, Option<config::Config>> {
-    generate_speacta_bindings();
-    PluginBuilder::<R, Option<config::Config>>::new("fs")
-        .invoke_handler(tauri::generate_handler![open_csv_file])
-        .build()
+#[tauri::command]
+#[specta::specta]
+pub fn load_model_json_file(filepath: String) -> Result<ModelDto, String> {
+    let path = Path::new(&filepath);
+    let display = path.display();
+
+    let mut file = match File::open(&path) {
+        Err(why) => return Err(format!("couldn't open {}: {}", display, why)),
+        Ok(file) => file,
+    };
+
+    let mut json_string = String::new();
+    file.read_to_string(&mut json_string)
+        .map_err(|_| format!("could not read file: {}", filepath))?;
+
+    let model: ModelDto =
+        serde_json::from_str(&json_string).map_err(|_| "Could not parse json file")?;
+
+    return Ok(model);
 }
 
-pub fn generate_speacta_bindings() {
-    tauri_specta::Builder::<tauri::Wry>::new()
-        // Then register them (separated by a comma)
-        .commands(collect_commands![open_csv_file])
-        .export(
-            Typescript::default(),
-            "../src/specta-bindings/specta-bindings2.ts",
-        )
-        .expect("Failed to export typescript bindings");
+#[derive(serde::Deserialize, serde::Serialize, Type)]
+pub struct SaveModelRequest {
+    file_path: String,
+    model: ModelDto,
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn save_model_json_file(request: SaveModelRequest) -> Result<String, String> {
+    let filepath = request.file_path;
+    let model = request.model;
+
+    let path = Path::new(&filepath);
+    let display = path.display();
+
+    let mut file = OpenOptions::new()
+        .create(true)
+        .write(true)
+        .append(false)
+        .read(false)
+        .open(path)
+        .map_err(|err| format!("couldn't open {}: {}", display, err))?;
+
+    let json_string = serde_json::to_string(&model)
+        .map_err(|e| format!("Could not serialize json of model: {}", e))?;
+
+    file.write(json_string.as_bytes())
+        .map_err(|_| format!("could not read file: {}", filepath))?;
+
+    return Ok(filepath.to_string());
 }

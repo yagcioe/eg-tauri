@@ -1,0 +1,9 @@
+pub mod application_dto;
+pub mod availability_dto;
+pub mod booking_dto;
+pub mod company_dto;
+pub mod model_dto;
+pub mod representative_dto;
+pub mod slot_dto;
+pub mod student_dto;
+pub mod talk_dto;

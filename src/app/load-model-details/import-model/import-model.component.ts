@@ -1,25 +1,24 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { DateFilterFn } from '@angular/material/datepicker';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { DateFilterFn, MatDatepickerModule } from '@angular/material/datepicker';
+import { MatInputModule } from '@angular/material/input';
 import moment from 'moment';
-import { MyKonParticipationExportCsvRow } from '../../specta-bindings/specta-bindings';
-import { LoadModelFormModel } from './import-model/import-model-form.model';
-import { ImportModelComponent } from './import-model/import-model.component';
-import { LoadModelService } from './load-model.service';
-import { MatError } from '@angular/material/input';
-import { LoadModelComponent } from './load-model/load-model.component';
+import { MyKonParticipationExportCsvRow } from '../../../specta-bindings/specta-bindings';
+import { LoadModelService } from '../load-model.service';
+import { ImportModelFormModel, ImportModelModel, ImportModelModelSchema } from './import-model.model';
 
 @Component({
-  selector: 'app-load-model-details',
-  imports: [ImportModelComponent, MatCardModule, LoadModelComponent],
-  templateUrl: './load-model-details.component.html',
-  styleUrl: './load-model-details.component.scss'
+  selector: 'app-import-model',
+  imports: [FormsModule, MatInputModule, MatDatepickerModule, ReactiveFormsModule],
+  templateUrl: './import-model.component.html',
+  styleUrl: './import-model.component.scss'
 })
-export class LoadModelDetailsComponent {
+export class ImportModelComponent {
+
   private loadModelService = inject(LoadModelService);
+
+  public modelImport = output<ImportModelModel>()
 
   protected selectedImportFileName = signal<string | undefined>(undefined);
   protected rows = signal<Partial<{
@@ -46,10 +45,10 @@ export class LoadModelDetailsComponent {
       }
     }
 
-    return currentMin;
+    return currentMin.toDate();
   });
 
-  protected form = new FormGroup<LoadModelFormModel>({
+  protected form = new FormGroup<ImportModelFormModel>({
     date: new FormControl(null, Validators.required),
     modelName: new FormControl(null, Validators.required)
   })
@@ -62,7 +61,7 @@ export class LoadModelDetailsComponent {
     })
 
     this.form.controls.date.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
-      this.form.controls.modelName.setValue(value?.format("dddd") ?? null)
+      this.form.controls.modelName.setValue(moment(value)?.format("dddd") ?? null)
     });
 
     this.form.statusChanges.pipe(takeUntilDestroyed()).subscribe((status) => {
@@ -98,25 +97,8 @@ export class LoadModelDetailsComponent {
     this.rows.set(content.data)
   }
 
-  protected async loadModelFile() {
-    const data = await this.loadModelService.importCsvFile();
-    if (!data) return;
-
-    const { fileName, content } = data;
-
-    this.selectedImportFileName.set(fileName);
-    if (content.status === "error") {
-
-      this.rowImportError.set(content.error)
-      this.rows.set(undefined)
-      return;
-    }
-    this.rowImportError.set(undefined)
-    this.rows.set(content.data)
-  }
-
-
-  protected dateFilter: DateFilterFn<moment.Moment | null> = (date) => {
+  protected dateFilter: DateFilterFn<Date | null> = (date) => {
+    console.log(date)
     if (!date) return false;
 
     return !!(this.availableDates()?.map(availableDate => moment(availableDate)).some(availableDate => availableDate.isSame(date, "day")))
@@ -128,8 +110,10 @@ export class LoadModelDetailsComponent {
     }
 
     const rawValue = this.form.getRawValue();
-
-    console.log(rawValue);
+    const model = ImportModelModelSchema.parse(rawValue);
+    console.log(model);
   }
 
 }
+
+

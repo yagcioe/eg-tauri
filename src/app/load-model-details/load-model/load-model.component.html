@@ -1,0 +1,16 @@
+<div class="flex-col">
+    <div>
+        <div class="flex-row">
+            <button (click)="loadModelFile()">Datei auswählen</button> <span>{{loadedModelFileName()}}</span>
+        </div>
+        @if(loadModelError(); as e){
+        <mat-error>{{e}}</mat-error>
+        }
+    </div>
+
+    <div>
+        <div class="flex-row">
+            <button (click)="loadExampleModel()">Beispiel Modell Laden</button>
+        </div>
+    </div>
+</div>

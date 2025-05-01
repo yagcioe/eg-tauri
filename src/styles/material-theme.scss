@@ -36,6 +36,3 @@ $eg-tauri-theme: mat.m2-define-light-theme((
 // that you are using.
 @include mat.all-component-themes($eg-tauri-theme);
 
-
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

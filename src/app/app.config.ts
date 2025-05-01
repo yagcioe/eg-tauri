@@ -1,17 +1,17 @@
 import { ApplicationConfig, LOCALE_ID, provideExperimentalZonelessChangeDetection } from "@angular/core";
 import { provideRouter } from "@angular/router";
 
-import { routes } from "./app.routes";
+import { provideNativeDateAdapter } from "@angular/material/core";
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import 'moment/locale/de';
+import { routes } from "./app.routes";
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideExperimentalZonelessChangeDetection(),
     provideRouter(routes),
     provideAnimationsAsync(),
-    provideMomentDateAdapter(),
+    provideNativeDateAdapter(),
     { provide: LOCALE_ID, useValue: "de-DE" }
   ],
 };

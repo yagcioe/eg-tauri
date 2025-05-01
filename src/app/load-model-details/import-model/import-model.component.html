@@ -1,0 +1,37 @@
+<div class="flex-col">
+    <p>Format der MyKon CSV:
+        <br />
+        <code>participationId, status, userId, userFullName, userEmail, eventId, eventName, eventBeginnDate(YYYY-MM-DD)</code>
+    </p>
+    <div>
+        <div class="flex-row">
+            <button (click)="importModelFile()">Datei auswählen</button> <span>{{selectedImportFileName()}}</span>
+        </div>
+        @if(rowImportError(); as e){
+        <mat-error>{{e}}</mat-error>
+        }
+    </div>
+
+
+    <div></div>
+    <div class="flex-default">
+        <mat-form-field style="flex:1">
+            <mat-label>Tag</mat-label>
+            <input matInput placeholder="DD.MM.YYYY" [matDatepicker]="picker" [matDatepickerFilter]="dateFilter"
+                [formControl]="form.controls.date">
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker [startAt]="minDate()"></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field style="flex:1">
+            <mat-label>Modellname</mat-label>
+            <input matInput [formControl]="form.controls.modelName" />
+        </mat-form-field>
+    </div>
+
+    <div class="flex-row align-center">
+        <div>
+            <button [disabled]="!isImportFormValid()" (click)="createModel()">Modell erstellen</button>
+        </div>
+    </div>
+</div>
