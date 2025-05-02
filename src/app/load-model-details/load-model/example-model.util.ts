@@ -1,6 +1,7 @@
 import moment from "moment";
 import { ApplicationDto, CompanyDto, ModelDto, RepresentativeDto, SlotDto, StudentDto } from "../../../specta-bindings/specta-bindings";
 import { ObjectUtil } from "../../shared/utils/object.util";
+import { LoadModelParser } from "./load-model.parser";
 
 export class ExampleModelUtil {
 
@@ -90,17 +91,9 @@ export class ExampleModelUtil {
     }
 
     private static createExampleCompany(opt: { id: number, name: string }): CompanyDto {
-        return { ...opt, comment: "", representatives: [this.createExampleRepresentative()] }
+        return { ...opt, comment: "", representatives: [LoadModelParser.createDefaultRepresentative()] }
     }
 
-    private static createExampleRepresentative(): RepresentativeDto {
-        return {
-            availability: [],
-            bookings: [],
-            id: 0,
-            name: "default representative"
-        }
-    }
 
     private static createExampleApplications(students: StudentDto[], companies: CompanyDto[]): ApplicationDto[] {
         const studentMap = ObjectUtil.toMap(students, s => s.id);

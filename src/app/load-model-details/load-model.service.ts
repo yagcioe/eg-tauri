@@ -56,7 +56,7 @@ export class LoadModelService {
 
     const split = filePath.split(sep());
     const fileName = split[split.length - 1];
-    return { fileName, filePathResult: await commands.saveModelJsonFile({ file_path: filePath, model, }) };
+    return { fileName, filePathResult: await commands.saveModelJsonFile(filePath, model) };
   }
 
   public listenEvent() {

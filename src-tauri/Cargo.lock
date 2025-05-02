@@ -921,6 +921,7 @@ dependencies = [
  "specta-typescript",
  "tauri",
  "tauri-build",
+ "tauri-helper",
  "tauri-plugin-dialog",
  "tauri-plugin-fs",
  "tauri-plugin-opener",
@@ -3859,6 +3860,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "tauri-helper"
+version = "0.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "23ae4af86dd350c557a181712491d0620d2d6919321d684aa5c9a23a38d8e9e7"
+dependencies = [
+ "serde",
+ "syn 2.0.101",
+ "tauri_helper_core",
+ "tauri_helper_macros",
+ "toml",
+ "walkdir",
+]
+
+[[package]]
 name = "tauri-macros"
 version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4076,6 +4091,33 @@ dependencies = [
  "embed-resource",
  "indexmap 2.9.0",
  "toml",
+]
+
+[[package]]
+name = "tauri_helper_core"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e36200a4913ca9d2f5a150960e7d91150d53a4f1790089a826f079b7b4be434c"
+dependencies = [
+ "serde",
+ "toml",
+]
+
+[[package]]
+name = "tauri_helper_macros"
+version = "0.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "244222dfbabf6a4c2eb8950cb8a0b107f966b875288308b22f731f17f6f331fb"
+dependencies = [
+ "proc-macro-error",
+ "proc-macro2",
+ "quote",
+ "serde",
+ "syn 2.0.101",
+ "tauri_helper_core",
+ "thiserror 2.0.12",
+ "toml",
+ "walkdir",
 ]
 
 [[package]]

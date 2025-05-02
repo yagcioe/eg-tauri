@@ -7,7 +7,10 @@ use serde::{Deserialize, Serialize};
 use specta::Type;
 use specta_typescript::Typescript;
 use tauri::Listener;
-use tauri_specta::{collect_commands, collect_events, Builder, Event};
+use tauri_helper::{array_collect_commands, specta_collect_commands, tauri_collect_commands};
+use tauri_specta::{collect_events, Builder, Event};
+
+use load_model_details::commands::*;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Type, Event)]
 pub struct DemoEvent {
@@ -63,30 +66,12 @@ fn gurobi_private() -> std::result::Result<(), grb::Error> {
     return Ok(());
 }
 
-// Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-#[tauri::command]
-#[specta::specta]
-fn gurobi() {
-    gurobi_private().unwrap()
-}
-
-// Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-#[tauri::command]
-#[specta::specta]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
-
 fn initalize_app() {
+    dbg!(array_collect_commands!());
+
     let builder = Builder::<tauri::Wry>::new()
         // Then register them (separated by a comma)
-        .commands(collect_commands![
-            greet,
-            gurobi,
-            load_model_details::open_csv_file,
-            load_model_details::load_model_json_file,
-            load_model_details::save_model_json_file
-        ])
+        .commands(specta_collect_commands!())
         .events(collect_events![DemoEvent]);
     builder
         .export(
@@ -99,13 +84,7 @@ fn initalize_app() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![
-            greet,
-            gurobi,
-            load_model_details::open_csv_file,
-            load_model_details::load_model_json_file,
-            load_model_details::save_model_json_file
-        ])
+        .invoke_handler(tauri_collect_commands!())
         .setup(move |app| {
             builder.mount_events(app);
 

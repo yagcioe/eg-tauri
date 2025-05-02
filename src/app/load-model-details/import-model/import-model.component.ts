@@ -48,6 +48,7 @@ export class ImportModelComponent {
     return currentMin.toDate();
   });
 
+  // TODO validate date is in loaded rows
   protected form = new FormGroup<ImportModelFormModel>({
     date: new FormControl(null, Validators.required),
     modelName: new FormControl(null, Validators.required)
