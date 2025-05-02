@@ -25,7 +25,7 @@ export class LoadModelService {
     return { fileName, content: await commands.openCsvFile(filePath) };
   }
 
-  public async loadModelJsonFile() {
+  public async openModelJsonFile() {
     const filePath = await openFileDialog({
       multiple: false, directory: false, filters: [
         {
@@ -34,8 +34,10 @@ export class LoadModelService {
         }
       ]
     });
-    if (!filePath) return null;
+    return filePath;
+  }
 
+  public async loadModelJsonFile(filePath: string) {
     const split = filePath.split(sep());
     const fileName = split[split.length - 1];
     return { fileName, content: await commands.loadModelJsonFile(filePath) };

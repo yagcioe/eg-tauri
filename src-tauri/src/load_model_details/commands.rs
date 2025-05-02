@@ -82,6 +82,7 @@ pub fn save_model_json_file(file_path: String, model: ModelDto) -> Result<String
         .write(true)
         .append(false)
         .read(false)
+        .truncate(true)
         .open(path)
         .map_err(|err| format!("couldn't open {}: {}", display, err))?;
 

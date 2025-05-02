@@ -5,14 +5,6 @@
 
 
 export const commands = {
-async saveModelJsonFile(filePath: string, model: ModelDto) : Promise<Result<string, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("save_model_json_file", { filePath, model }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
 async openCsvFile(filepath: string) : Promise<Result<Partial<{ [key in string]: MyKonParticipationExportCsvRow[] }>, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("open_csv_file", { filepath }) };
@@ -24,6 +16,14 @@ async openCsvFile(filepath: string) : Promise<Result<Partial<{ [key in string]: 
 async loadModelJsonFile(filepath: string) : Promise<Result<ModelDto, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("load_model_json_file", { filepath }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async saveModelJsonFile(filePath: string, model: ModelDto) : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("save_model_json_file", { filePath, model }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };

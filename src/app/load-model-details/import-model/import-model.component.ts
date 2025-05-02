@@ -3,9 +3,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DateFilterFn, MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
+import { Router } from '@angular/router';
 import moment from 'moment';
 import { MyKonParticipationExportCsvRow } from '../../../specta-bindings/specta-bindings';
 import { LoadModelService } from '../load-model.service';
+import { ExampleModelUtil } from '../load-model/example-model.util';
+import { LoadModelParser } from '../load-model/load-model.parser';
 import { ImportModelFormModel, ImportModelModel, ImportModelModelSchema } from './import-model.model';
 
 @Component({
@@ -17,6 +20,7 @@ import { ImportModelFormModel, ImportModelModel, ImportModelModelSchema } from '
 export class ImportModelComponent {
 
   private loadModelService = inject(LoadModelService);
+  private router = inject(Router);
 
   public modelImport = output<ImportModelModel>()
 
@@ -105,14 +109,40 @@ export class ImportModelComponent {
     return !!(this.availableDates()?.map(availableDate => moment(availableDate)).some(availableDate => availableDate.isSame(date, "day")))
   }
 
-  protected createModel() {
+  protected async createModel() {
     if (!this.isImportFormValid()) {
       return;
     }
 
     const rawValue = this.form.getRawValue();
-    const model = ImportModelModelSchema.parse(rawValue);
-    console.log(model);
+    const data = ImportModelModelSchema.parse(rawValue);
+    const rows = this.rows();
+    if (!rows) return;
+    const dateString = moment(data.date).format("yyyy-mm-dd");
+    const rowsOfDate = rows[dateString];
+    if (!rowsOfDate) return;
+
+    const model = LoadModelParser.toModel(rowsOfDate, data.modelName)
+
+    const saveResult = await this.loadModelService.saveModelJsonFile(model);
+    this.openModelDetail(saveResult);
+  }
+
+  protected async createExampleModel() {
+    const exampleModel = ExampleModelUtil.createExampleModel();
+    const saveResult = await this.loadModelService.saveModelJsonFile(exampleModel);
+    this.openModelDetail(saveResult);
+  }
+
+  private openModelDetail(saveResult: Awaited<ReturnType<typeof this.loadModelService.saveModelJsonFile>>) {
+    if (!saveResult) return;
+
+    if (saveResult.filePathResult.status === "error") {
+      console.error(saveResult.filePathResult.error);
+      return;
+    }
+
+    this.router.navigate(["details", encodeURI(saveResult.filePathResult.data)])
   }
 
 }
