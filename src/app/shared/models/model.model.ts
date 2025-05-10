@@ -5,14 +5,14 @@ import { StudentModelSchema } from "./student.model";
 import { SlotModelSchema } from "./slot.model";
 
 export const ModelModelSchema = z.object({
-    name: z.string(),
-    cabinCount: z.number().int(),
-    maxStartPerSlot: z.number().int(),
-    slotDurationMinutes: z.date(),
-    talkSlotCount: z.number().int(),
-    minimumRepresentativeBreakSlotCount: z.number().int(),
-    minimumStudentBreakSlotCount: z.number().int(),
-    dayStartTime: z.date(),
+    name: z.string().min(1),
+    cabinCount: z.coerce.number().int(),
+    maxStartPerSlot: z.coerce.number().int(),
+    slotDurationMinutes:z.string().time(),
+    talkSlotCount: z.coerce.number().int(),
+    minimumRepresentativeBreakSlotCount: z.coerce.number().int(),
+    minimumStudentBreakSlotCount: z.coerce.number().int(),
+    dayStartTime: z.string().time(),
     students: z.array(StudentModelSchema),
     companies: z.array(CompanyModelSchema),
     applications: z.array(ApplicationModelSchema),

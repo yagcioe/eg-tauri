@@ -22,8 +22,6 @@ export class LoadModelComponent {
     const filePath = await this.loadModelService.openModelJsonFile();
     if (!filePath) return;
 
-    this.router.navigate(["details", encodeURI(filePath)])
+    this.router.navigate(["file", encodeURI(filePath), "details"])
   }
-
-
 }

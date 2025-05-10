@@ -1,0 +1,9 @@
+<mat-form-field style="width: 100%;">
+    <mat-label>{{label()}}</mat-label>
+
+    <input matInput aria-label="default time" [ngxTimepicker]="picker" [format]="24" [formControl]="control()" readonly>
+    <ngx-material-timepicker [format]="24" #picker></ngx-material-timepicker>
+    @for (error of control().errors | validationList; track $index) {
+    <mat-error>{{error()}}</mat-error>
+    }
+</mat-form-field>

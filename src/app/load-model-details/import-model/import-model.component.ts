@@ -142,7 +142,7 @@ export class ImportModelComponent {
       return;
     }
 
-    this.router.navigate(["details", encodeURI(saveResult.filePathResult.data)])
+    this.router.navigate(["file", encodeURI(saveResult.filePathResult.data), "details"])
   }
 
 }

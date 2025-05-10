@@ -16,7 +16,7 @@ export function toObservable<T>(event: ListenableObject<T>): Observable<Event<T>
         const promiseToTearDown = new Promise((resolve) => {
             teardown = resolve;
         })
-
+        
         // unlisten to tauri events when Subject is torn down and unlisten is available
         Promise.all([event.listen((event_value) => observer.next(event_value)), promiseToTearDown]).then(([unlisten, _]) => {
             console.log("unsub from tauri stream")

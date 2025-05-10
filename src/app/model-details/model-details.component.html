@@ -1,1 +1,87 @@
-{{this.modelJson()}}
+<div class="flex-col">
+    <mat-form-field>
+        <mat-label>Modellname</mat-label>
+        <input matInput [formControl]="form.controls.name" />
+        @for (error of form.controls.name.errors | validationList; track $index) {
+        <mat-error>{{error()}}</mat-error>
+        }
+    </mat-form-field>
+    <div class="flex-default">
+        <mat-form-field style="flex: 1;">
+            <mat-label>Kabinenanzahl</mat-label>
+            <input matInput [type]="'number'" [formControl]="form.controls.cabinCount" />
+            @for (error of form.controls.cabinCount.errors | validationList; track $index) {
+            <mat-error>{{error()}}</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field style="flex: 1;">
+            <mat-label>Max. Gleichzeitig startende EGs</mat-label>
+            <input matInput [type]="'number'" [formControl]="form.controls.maxStartPerSlot" />
+            @for (error of form.controls.maxStartPerSlot.errors | validationList; track $index) {
+            <mat-error>{{error()}}</mat-error>
+            }
+        </mat-form-field>
+    </div>
+
+    <div class="flex-default">
+        <app-time-picker style="flex: 1;" label="Startzeit des Tages" [control]="this.form.controls.dayStartTime" />
+
+        <app-time-picker style="flex: 1;" label="Slotdauer" [control]="this.form.controls.slotDuration" />
+    </div>
+
+    <div class="flex-default">
+        <mat-form-field style="flex:1;">
+            <mat-label>Dauer eines EGs (in Slots)</mat-label>
+            <input matInput [type]="'number'" [formControl]="form.controls.talkSlotCount" />
+            @for (error of form.controls.maxStartPerSlot.errors | validationList; track $index) {
+            <mat-error>{{error()}}</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field style="flex:1;">
+            <mat-label>Dauer der Pause für Vertreter</mat-label>
+            <input matInput [type]="'number'" [formControl]="form.controls.minimumRepresentativeBreakSlotCount" />
+            @for (error of form.controls.maxStartPerSlot.errors | validationList; track $index) {
+            <mat-error>{{error()}}</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field style="flex:1;">
+            <mat-label>Dauer der Pause für Studierende</mat-label>
+            <input matInput [type]="'number'" [formControl]="form.controls.minimumStudentBreakSlotCount" />
+            @for (error of form.controls.maxStartPerSlot.errors | validationList; track $index) {
+            <mat-error>{{error()}}</mat-error>
+            }
+        </mat-form-field>
+    </div>
+    <div>
+        <h3>Zeitstrafen</h3>
+        <div class="flex-col">
+            <div>
+                <button mat-mini-fab (click)="addSlot(true,0)">
+                    <mat-icon>add</mat-icon>
+                </button>
+            </div>
+            @for(slot of slotDisplayData(); track slot){
+            <div class="flex-default">
+                <mat-form-field>
+                    <mat-label>Slot {{1+slot.index+ ": "+slot.time}}</mat-label>
+                    <input matInput [type]="'number'" [formControl]="slot.slot" />
+                    @for (error of slot.slot.errors | validationList; track $index) {
+                    <mat-error>{{error()}}</mat-error>
+                    }
+                </mat-form-field>
+                <button mat-mini-fab (click)="removeSlot(slot.index)">
+                    <mat-icon>delete</mat-icon>
+                </button>
+            </div>
+            }
+            <div>
+                <button mat-mini-fab (click)="addSlot(false,0)">
+                    <mat-icon>add</mat-icon>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
