@@ -6,10 +6,18 @@ export class DateParser {
     }
 
     public static durationToHHmm(duration: moment.Duration): string {
-        return moment.utc(duration.asMilliseconds()).format("HH:mm")
+        return this.toFormat(duration, "HH:mm")
     }
 
-    public static toHHmmss(duration: string): string {
-        return moment.utc(moment.duration(duration).asMilliseconds()).format("HH:mm:ss")
+    public static stringtoHHmmss(duration: string): string {
+        return this.durationToHHmmss(moment.duration(duration))
+    }
+
+    public static durationToHHmmss(duration: moment.Duration): string {
+        return this.toFormat(duration, "HH:mm:ss");
+    }
+
+    private static toFormat(duration: moment.Duration, format: string): string {
+        return moment.utc(duration.asMilliseconds()).format(format)
     }
 }

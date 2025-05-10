@@ -118,7 +118,7 @@ export class ImportModelComponent {
     const data = ImportModelModelSchema.parse(rawValue);
     const rows = this.rows();
     if (!rows) return;
-    const dateString = moment(data.date).format("yyyy-mm-dd");
+    const dateString = moment(data.date).format("yyyy-MM-DD");
     const rowsOfDate = rows[dateString];
     if (!rowsOfDate) return;
 

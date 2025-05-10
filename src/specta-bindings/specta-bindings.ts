@@ -5,17 +5,17 @@
 
 
 export const commands = {
-async loadModelJsonFile(filepath: string) : Promise<Result<ModelDto, string>> {
+async saveModelJsonFile(filePath: string, model: ModelDto) : Promise<Result<string, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("load_model_json_file", { filepath }) };
+    return { status: "ok", data: await TAURI_INVOKE("save_model_json_file", { filePath, model }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
 },
-async saveModelJsonFile(filePath: string, model: ModelDto) : Promise<Result<string, string>> {
+async loadModelJsonFile(filepath: string) : Promise<Result<ModelDto, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("save_model_json_file", { filePath, model }) };
+    return { status: "ok", data: await TAURI_INVOKE("load_model_json_file", { filepath }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
