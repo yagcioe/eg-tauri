@@ -1,25 +1,18 @@
 import { Injectable } from '@angular/core';
 import { sep } from "@tauri-apps/api/path";
 import { open as openFileDialog, save as saveFileDialog } from '@tauri-apps/plugin-dialog';
-import { commands, DemoEvent, events, Result } from '../../specta-bindings/specta-bindings';
+import { commands, DemoEvent, events } from '../../specta-bindings/specta-bindings';
 import { ModelModel } from '../shared/models/model.model';
 import { ModelParser } from '../shared/parser/model.parser';
-import { toObservable } from '../shared/utils/tauri-specta-rxjs-interop';
 import { SpectaUtil } from '../shared/utils/specta.util';
+import { toObservable } from '../shared/utils/tauri-specta-rxjs-interop';
 @Injectable({
   providedIn: 'root'
 })
 export class LoadModelService {
 
   public async importCsvFile() {
-    const filePath = await openFileDialog({
-      multiple: false, directory: false, filters: [
-        {
-          name: "CSV",
-          extensions: ["csv"]
-        }
-      ]
-    });
+    const filePath = await this.openCsvFile()
     if (!filePath) return null;
 
     const split = filePath.split(sep());
@@ -27,8 +20,19 @@ export class LoadModelService {
     return { fileName, content: await commands.openCsvFile(filePath) };
   }
 
-  public async openModelJsonFile() {
-    const filePath = await openFileDialog({
+  public openCsvFile() {
+    return openFileDialog({
+      multiple: false, directory: false, filters: [
+        {
+          name: "CSV",
+          extensions: ["csv"]
+        }
+      ]
+    });
+  }
+
+  public openJsonFile() {
+    return openFileDialog({
       multiple: false, directory: false, filters: [
         {
           name: "JSON",
@@ -36,18 +40,10 @@ export class LoadModelService {
         }
       ]
     });
-    return filePath;
   }
 
-  public async loadModelJsonFile(filePath: string) {
-    const split = filePath.split(sep());
-    const fileName = split[split.length - 1];
-    const resultDto = await commands.loadModelJsonFile(filePath);
-    return { fileName, content: SpectaUtil.mapResult(resultDto, ModelParser.toModel) };
-  }
-
-  public async saveModelJsonFile(model: ModelModel) {
-    const filePath = await saveFileDialog({
+  public async saveJsonFile() {
+    return saveFileDialog({
       canCreateDirectories: false,
       filters: [
         {
@@ -55,12 +51,39 @@ export class LoadModelService {
           extensions: ["json"]
         }
       ]
-    });
-    if (!filePath) return null;
+    })
+  }
 
+  public async loadModelJsonFile() {
+    const filePath = await this.openJsonFile();
+    if (!filePath) return;
+    return await this.loadModel(filePath);
+  }
+
+  public async getModel(fileHandle: string) {
+    return SpectaUtil.mapResult(await commands.getModel(fileHandle), (model) => model ? ModelParser.toModel(model) : null)
+  }
+
+  public async loadModel(filePath: string) {
     const split = filePath.split(sep());
     const fileName = split[split.length - 1];
-    return { fileName, filePathResult: await commands.saveModelJsonFile(filePath, ModelParser.toDto(model)) };
+    const resultDto = await commands.loadModel(filePath);
+    return { fileName, content: SpectaUtil.mapResult(resultDto, (fileHandle) => ({ fileHandle })) };
+  }
+
+  public async persistHandle(file_handle: string) {
+    return SpectaUtil.mapResult(await commands.persistHandle(file_handle), (filePath) => ({ filePath }));
+  }
+
+  public async persistModel(model: ModelModel) {
+    const filePath = await this.saveJsonFile();
+    if (!filePath) return;
+
+    return SpectaUtil.mapResult(await commands.persistModel(filePath, ModelParser.toDto(model)), (filePath) => ({ filePath }))
+  }
+
+  public async updateModel(fileHandle: string, model: ModelModel) {
+    return SpectaUtil.mapResult(await commands.updateModel(fileHandle, ModelParser.toDto(model)), (fileHandle) => ({ fileHandle }));
   }
 
   public listenEvent() {

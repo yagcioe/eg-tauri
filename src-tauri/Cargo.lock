@@ -926,6 +926,7 @@ dependencies = [
  "tauri-plugin-fs",
  "tauri-plugin-opener",
  "tauri-specta",
+ "uuid",
 ]
 
 [[package]]

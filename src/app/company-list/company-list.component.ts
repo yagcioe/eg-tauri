@@ -17,7 +17,6 @@ import { RepresentativeModel } from '../shared/models/representative.model';
 import { ValidatorService } from '../shared/services/validator.service';
 import { HtmlUtil } from '../shared/utils/html.util';
 import { AvailabilityFormModel, AvailabilityModelSchema } from './availabiltiy-from.model';
-import { JsonPipe } from '@angular/common';
 
 @Component({
   selector: 'app-company-list',
@@ -31,19 +30,14 @@ export class CompanyListComponent {
   private readonly validatorService = inject(ValidatorService);
   private readonly destroyRef = inject(DestroyRef);
 
-  private modelFilePath: Observable<string | undefined> = this.activeRoute.parent?.params.pipe(map(params => decodeURI(params[ROUTE_SCHEMA.FILE_HANDLE[ROUTE_INDEX]]) as string), takeUntilDestroyed()) ?? of(undefined)
-  protected modelLoadingResult = toSignal(this.modelFilePath.pipe(switchMap(path => path ? this.loadModelService.loadModelJsonFile(path) : of(undefined)), takeUntilDestroyed()))
-  protected fileName = computed(() => this.modelLoadingResult()?.fileName);
+  private modelFileHandle: Observable<string | undefined> = this.activeRoute.parent?.params.pipe(map(params => params[ROUTE_SCHEMA.FILE_HANDLE[ROUTE_INDEX]] as string), takeUntilDestroyed()) ?? of(undefined)
+  protected modelLoadingResult = toSignal(this.modelFileHandle.pipe(switchMap(fileHandle => fileHandle ? this.loadModelService.getModel(fileHandle) : of(undefined)), takeUntilDestroyed()))
 
   protected modelContent = computed(() => {
-    const mod = this.modelLoadingResult()?.content;
-    console.log(mod)
-    if (!mod) return;
+    const modResult = this.modelLoadingResult();
+    if (!modResult || modResult.status !== "ok") return;
 
-    if (mod.status === "ok") {
-      return mod.data;
-    }
-    return;
+    return modResult.data ?? undefined;
   });
 
   protected companies = linkedSignal(() => this.modelContent()?.companies ?? [])

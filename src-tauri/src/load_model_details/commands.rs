@@ -1,3 +1,5 @@
+use crate::app_state::{AppState, ModelFile};
+
 use super::super::models::model_dto::ModelDto;
 use super::my_kon_participation_export_csv_row::MyKonParticipationExportCsvRow;
 use chrono::NaiveDate;
@@ -5,15 +7,18 @@ use std::collections::HashMap;
 use std::fs::{File, OpenOptions};
 use std::io::{Read, Write};
 use std::path::Path;
+use std::sync::Mutex;
+use tauri::State;
 use tauri_helper::auto_collect_command;
+use uuid::Uuid;
 
 #[tauri::command]
 #[specta::specta]
 #[auto_collect_command]
 pub fn open_csv_file(
-    fileHandle: String,
+    file_handle: String,
 ) -> Result<HashMap<NaiveDate, Vec<MyKonParticipationExportCsvRow>>, String> {
-    let path = Path::new(&fileHandle);
+    let path = Path::new(&file_handle);
     let display = path.display();
 
     let file = match File::open(&path) {
@@ -51,8 +56,10 @@ pub fn open_csv_file(
 #[tauri::command]
 #[specta::specta]
 #[auto_collect_command]
-pub fn load_model_json_file(fileHandle: String) -> Result<ModelDto, String> {
-    let path = Path::new(&fileHandle);
+pub fn load_model(state: State<'_, Mutex<AppState>>, file_path: String) -> Result<String, String> {
+    let mut state = state.lock().unwrap();
+
+    let path = Path::new(&file_path);
     let display = path.display();
 
     let mut file = match File::open(&path) {
@@ -62,18 +69,84 @@ pub fn load_model_json_file(fileHandle: String) -> Result<ModelDto, String> {
 
     let mut json_string = String::new();
     file.read_to_string(&mut json_string)
-        .map_err(|_| format!("could not read file: {}", fileHandle))?;
+        .map_err(|_| format!("could not read file: {}", file_path))?;
 
     let model: ModelDto =
         serde_json::from_str(&json_string).map_err(|_| "Could not parse json file")?;
+    let file_handle = Uuid::new_v4();
 
-    return Ok(model);
+    state.models.insert(
+        file_handle.clone(),
+        ModelFile {
+            file_path: file_path.clone(),
+            model: model.clone(),
+        },
+    );
+
+    return Ok(file_handle.to_string());
 }
 
 #[tauri::command]
 #[specta::specta]
 #[auto_collect_command]
-pub fn save_model_json_file(file_path: String, model: ModelDto) -> Result<String, String> {
+pub fn get_model(
+    state: State<'_, Mutex<AppState>>,
+    file_handle: String,
+) -> Result<Option<ModelDto>, String> {
+    let file_handle_uuid =
+        Uuid::parse_str(&file_handle).map_err(|_| "Failed to parse uuid".to_string())?;
+    let state = state.lock().unwrap();
+
+    return match state.models.get(&file_handle_uuid) {
+        None => Ok(None),
+        Some(model_file) => Ok(Some(model_file.model.clone())),
+    };
+}
+
+#[tauri::command]
+#[specta::specta]
+#[auto_collect_command]
+pub fn update_model(
+    state: State<'_, Mutex<AppState>>,
+    file_handle: String,
+    model: ModelDto,
+) -> Result<Option<String>, String> {
+    let mut state = state.lock().unwrap();
+    let file_handle_uuid =
+        Uuid::parse_str(&file_handle).map_err(|_| "Failed to parse uuid".to_string())?;
+    return Ok(match state.models.remove(&file_handle_uuid) {
+        None => None,
+        Some(model_file) => {
+            let file_path = model_file.file_path;
+            state
+                .models
+                .insert(file_handle_uuid, ModelFile { file_path, model });
+            Some(file_handle_uuid.to_string())
+        }
+    });
+}
+
+#[tauri::command]
+#[specta::specta]
+#[auto_collect_command]
+pub fn persist_handle(
+    state: State<'_, Mutex<AppState>>,
+    file_handle: String,
+) -> Result<String, String> {
+    let state = state.lock().unwrap();
+    let file_handle_uuid =
+        Uuid::parse_str(&file_handle).map_err(|_| "Failed to parse uuid".to_string())?;
+
+    return match state.models.get(&file_handle_uuid) {
+        None => Err("Could not find model with respective file handle".to_string()),
+        Some(model_file) => persist_model(model_file.file_path.clone(), model_file.model.clone()),
+    };
+}
+
+#[tauri::command]
+#[specta::specta]
+#[auto_collect_command]
+pub fn persist_model(file_path: String, model: ModelDto) -> Result<String, String> {
     let path = Path::new(&file_path);
     let display = path.display();
 
@@ -92,5 +165,5 @@ pub fn save_model_json_file(file_path: String, model: ModelDto) -> Result<String
     file.write(json_string.as_bytes())
         .map_err(|_| format!("could not read file: {}", file_path))?;
 
-    return Ok(file_path.to_string());
+    return Ok(file_path);
 }

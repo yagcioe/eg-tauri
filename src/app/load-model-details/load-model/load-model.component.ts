@@ -1,9 +1,8 @@
 import { Component, inject, signal } from '@angular/core';
 import { MatError } from '@angular/material/input';
-import { LoadModelService } from '../load-model.service';
-import { ExampleModelUtil } from './example-model.util';
 import { Router } from '@angular/router';
 import { ROUTE_SCHEMA } from '../../app.routes';
+import { LoadModelService } from '../load-model.service';
 
 @Component({
   selector: 'app-load-model',
@@ -20,9 +19,9 @@ export class LoadModelComponent {
 
   protected async loadModelFile() {
 
-    const filePath = await this.loadModelService.openModelJsonFile();
-    if (!filePath) return;
+    const loadResult = await this.loadModelService.loadModelJsonFile();
+    if (!loadResult || loadResult.content.status !== "ok") return;
 
-    this.router.navigate([encodeURI(filePath), ROUTE_SCHEMA.FILE_HANDLE.DETAILS])
+    this.router.navigate([loadResult.content.data.fileHandle, ROUTE_SCHEMA.FILE_HANDLE.DETAILS])
   }
 }

@@ -28,19 +28,15 @@ export class ModelDetailsComponent {
   private readonly loadModelService = inject(LoadModelService);
   private readonly validatorService = inject(ValidatorService);
 
-  private modelFilePath: Observable<string | undefined> = this.activeRoute.parent?.params.pipe(map(params => decodeURI(params[ROUTE_SCHEMA.FILE_HANDLE[ROUTE_INDEX]]) as string), takeUntilDestroyed()) ?? of(undefined)
-  protected modelLoadingResult = toSignal(this.modelFilePath.pipe(switchMap(path => path ? this.loadModelService.loadModelJsonFile(path) : of(undefined)), takeUntilDestroyed()))
-  protected fileName = computed(() => this.modelLoadingResult()?.fileName);
+  private modelFileHandle: Observable<string | undefined> = this.activeRoute.parent?.params.pipe(map(params => params[ROUTE_SCHEMA.FILE_HANDLE[ROUTE_INDEX]] as string), takeUntilDestroyed()) ?? of(undefined)
+  protected modelLoadingResult = toSignal(this.modelFileHandle.pipe(switchMap(fileHandle => fileHandle ? this.loadModelService.getModel(fileHandle) : of(undefined)), takeUntilDestroyed()))
 
   protected modelContent = computed(() => {
-    const mod = this.modelLoadingResult()?.content;
+    const contentResult = this.modelLoadingResult();
+    if (!contentResult) return;
 
-    if (!mod) return;
-
-    if (mod.status === "ok") {
-      return mod.data;
-    }
-    return;
+    const mod = contentResult.status === "ok" ? contentResult.data : undefined;
+    return mod ?? undefined;
   });
 
   protected form = new FormGroup<ModelBaseDataFormModel>({

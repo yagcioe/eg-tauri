@@ -124,26 +124,29 @@ export class ImportModelComponent {
     if (!rowsOfDate) return;
 
     const model = LoadModelParser.toModel(rowsOfDate, data.modelName)
-
-    const saveResult = await this.loadModelService.saveModelJsonFile(model);
-    this.openModelDetail(saveResult);
+    const saveResult = await this.loadModelService.persistModel(model);
+    await this.openModelDetail(saveResult);
   }
 
   protected async createExampleModel() {
     const exampleModel = ExampleModelUtil.createExampleModel();
-    const saveResult = await this.loadModelService.saveModelJsonFile(exampleModel);
-    this.openModelDetail(saveResult);
+    const saveResult = await this.loadModelService.persistModel(exampleModel);
+    await this.openModelDetail(saveResult);
   }
 
-  private openModelDetail(saveResult: Awaited<ReturnType<typeof this.loadModelService.saveModelJsonFile>>) {
+  private async openModelDetail(saveResult: Awaited<ReturnType<typeof this.loadModelService.persistModel>>) {
     if (!saveResult) return;
 
-    if (saveResult.filePathResult.status === "error") {
-      console.error(saveResult.filePathResult.error);
+    if (saveResult.status === "error") {
+      console.error(saveResult.error);
       return;
     }
 
-    this.router.navigate([encodeURI(saveResult.filePathResult.data), ROUTE_SCHEMA.FILE_HANDLE.DETAILS])
+    const loadResult = await this.loadModelService.loadModel(saveResult.data.filePath);
+    const fileHandle = loadResult.content.status === "ok" ? loadResult.content.data.fileHandle : undefined;
+    if (!fileHandle) return;
+
+    this.router.navigate([fileHandle, ROUTE_SCHEMA.FILE_HANDLE.DETAILS])
   }
 
 }

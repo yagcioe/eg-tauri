@@ -1,4 +1,4 @@
-#[derive(serde::Serialize, serde::Deserialize, specta::Type, Debug)]
+#[derive(serde::Serialize, serde::Deserialize, specta::Type, Debug, Clone)]
 pub struct ApplicationDto {
     pub id: u32,
     pub student_id: u32,

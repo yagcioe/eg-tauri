@@ -32,7 +32,6 @@ export class LoadModelParser {
         const students: StudentDto[] = rows.map(row => ({ id: row.user_id, email: row.email, availability: [], name: row.full_name }))
 
         const applications = rows.map(row => ({ company_id: row.event_id, id: row.participation_id, representative_ids: companyMap[row.event_id].representatives.map(r => r.id), student_id: row.user_id }));
-        debugger;
         const slot_duration = DateParser.durationToHHmm(this.defaultSlotDuration);
         return ModelParser.toModel({
             name,

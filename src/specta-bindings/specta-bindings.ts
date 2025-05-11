@@ -13,17 +13,41 @@ async openCsvFile(fileHandle: string) : Promise<Result<Partial<{ [key in string]
     else return { status: "error", error: e  as any };
 }
 },
-async loadModelJsonFile(fileHandle: string) : Promise<Result<ModelDto, string>> {
+async loadModel(filePath: string) : Promise<Result<string, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("load_model_json_file", { fileHandle }) };
+    return { status: "ok", data: await TAURI_INVOKE("load_model", { filePath }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
 },
-async saveModelJsonFile(filePath: string, model: ModelDto) : Promise<Result<string, string>> {
+async persistModel(filePath: string, model: ModelDto) : Promise<Result<string, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("save_model_json_file", { filePath, model }) };
+    return { status: "ok", data: await TAURI_INVOKE("persist_model", { filePath, model }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async getModel(fileHandle: string) : Promise<Result<ModelDto | null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_model", { fileHandle }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async persistHandle(fileHandle: string) : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("persist_handle", { fileHandle }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async updateModel(fileHandle: string, model: ModelDto) : Promise<Result<string | null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("update_model", { fileHandle, model }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };

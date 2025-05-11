@@ -3,7 +3,7 @@ use super::company_dto::CompanyDto;
 use super:: application_dto::ApplicationDto;
 use super::slot_dto::SlotDto;
 
-#[derive(serde::Serialize, serde::Deserialize, specta::Type, Debug)]
+#[derive(serde::Serialize, serde::Deserialize, specta::Type, Debug, Clone)]
 pub struct ModelDto{
     pub name: String,
     pub cabin_count: u32,

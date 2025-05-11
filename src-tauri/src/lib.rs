@@ -1,12 +1,16 @@
 mod extensions;
 mod load_model_details;
 mod models;
+mod app_state;
 
+use std::sync::Mutex;
+
+use app_state::AppState;
 use grb::{ModelSense::Minimize, *};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use specta_typescript::Typescript;
-use tauri::Listener;
+use tauri::{Listener, Manager};
 use tauri_helper::{array_collect_commands, specta_collect_commands, tauri_collect_commands};
 use tauri_specta::{collect_events, Builder, Event};
 
@@ -86,6 +90,8 @@ fn initalize_app() {
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri_collect_commands!())
         .setup(move |app| {
+            app.manage(Mutex::new(AppState::default()));
+
             builder.mount_events(app);
 
             DemoEvent::listen(app, |event| {
