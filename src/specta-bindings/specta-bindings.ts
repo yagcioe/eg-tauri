@@ -5,6 +5,14 @@
 
 
 export const commands = {
+async openCsvFile(fileHandle: string) : Promise<Result<Partial<{ [key in string]: MyKonParticipationExportCsvRow[] }>, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("open_csv_file", { fileHandle }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 async loadModelJsonFile(fileHandle: string) : Promise<Result<ModelDto, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("load_model_json_file", { fileHandle }) };
@@ -16,14 +24,6 @@ async loadModelJsonFile(fileHandle: string) : Promise<Result<ModelDto, string>> 
 async saveModelJsonFile(filePath: string, model: ModelDto) : Promise<Result<string, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("save_model_json_file", { filePath, model }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-async openCsvFile(fileHandle: string) : Promise<Result<Partial<{ [key in string]: MyKonParticipationExportCsvRow[] }>, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("open_csv_file", { fileHandle }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -49,11 +49,11 @@ demoEvent: "demo-event"
 export type ApplicationDto = { id: number; student_id: number; company_id: number; representative_ids: number[] }
 export type AvailabilityDto = { start: string; end: string }
 export type BookingDto = { cabin: number; talks: TalkDto[] }
-export type CompanyDto = { id: number; name: string; comment: string; representatives: RepresentativeDto[] }
+export type CompanyDto = { id: number; name: string; representatives: RepresentativeDto[] }
 export type DemoEvent = { name: string }
 export type ModelDto = { name: string; cabin_count: number; max_start_per_slot: number; slot_duration: string; talk_slot_count: number; minimum_representative_break_slot_count: number; minimum_student_break_slot_count: number; day_start_time: string; students: StudentDto[]; companies: CompanyDto[]; applications: ApplicationDto[]; slots: SlotDto[] }
 export type MyKonParticipationExportCsvRow = { participation_id: number; status: string; user_id: number; full_name: string; email: string; event_id: number; event_name: string; event_beginn_date: string }
-export type RepresentativeDto = { id: number; name: string; availability: AvailabilityDto[]; bookings: BookingDto[] }
+export type RepresentativeDto = { id: number; availability: AvailabilityDto[]; bookings: BookingDto[] }
 export type SlotDto = { penalty: number }
 export type StudentDto = { id: number; name: string; email: string; availability: AvailabilityDto[] }
 export type TalkDto = { start_time: string; application_id: number }

@@ -15,6 +15,7 @@ import { ValidatorService } from '../shared/services/validator.service';
 import { ModelBaseDataFormModel } from './model-base-data.form-model';
 import moment from 'moment';
 import { DateParser } from '../shared/parser/date.parser';
+import { ROUTE_INDEX, ROUTE_SCHEMA } from '../app.routes';
 
 @Component({
   selector: 'app-model-details',
@@ -27,7 +28,7 @@ export class ModelDetailsComponent {
   private readonly loadModelService = inject(LoadModelService);
   private readonly validatorService = inject(ValidatorService);
 
-  private modelFilePath: Observable<string | undefined> = this.activeRoute.parent?.params.pipe(map(params => decodeURI(params["fileHandle"]) as string), takeUntilDestroyed()) ?? of(undefined)
+  private modelFilePath: Observable<string | undefined> = this.activeRoute.parent?.params.pipe(map(params => decodeURI(params[ROUTE_SCHEMA.FILE_HANDLE[ROUTE_INDEX]]) as string), takeUntilDestroyed()) ?? of(undefined)
   protected modelLoadingResult = toSignal(this.modelFilePath.pipe(switchMap(path => path ? this.loadModelService.loadModelJsonFile(path) : of(undefined)), takeUntilDestroyed()))
   protected fileName = computed(() => this.modelLoadingResult()?.fileName);
 
@@ -49,7 +50,7 @@ export class ModelDetailsComponent {
     maxStartPerSlot: new FormControl(null, [this.validatorService.zodObject(ModelModelSchema, "maxStartPerSlot")]),
     minimumRepresentativeBreakSlotCount: new FormControl(null, [this.validatorService.zodObject(ModelModelSchema, "minimumRepresentativeBreakSlotCount")]),
     minimumStudentBreakSlotCount: new FormControl(null, [this.validatorService.zodObject(ModelModelSchema, "minimumStudentBreakSlotCount")]),
-    slotDuration: new FormControl(null, [this.validatorService.zodObject(ModelModelSchema, "slotDurationMinutes")]),
+    slotDuration: new FormControl(null, [this.validatorService.zodObject(ModelModelSchema, "slotDuration")]),
     talkSlotCount: new FormControl(null, [this.validatorService.zodObject(ModelModelSchema, "talkSlotCount")]),
     slots: new FormArray<FormControl<string | null>>([], [this.validatorService.zodObject(ModelModelSchema, "slots")]),
   })
@@ -73,14 +74,14 @@ export class ModelDetailsComponent {
         return;
       }
       this.form.patchValue({
-        cabinCount: model.cabin_count + "",
-        dayStartTime: DateParser.stringToHHmm(model.day_start_time),
-        maxStartPerSlot: model.max_start_per_slot + "",
-        minimumRepresentativeBreakSlotCount: model.minimum_representative_break_slot_count + "",
-        minimumStudentBreakSlotCount: model.minimum_student_break_slot_count + "",
+        cabinCount: model.cabinCount + "",
+        dayStartTime: model.dayStartTime,
+        maxStartPerSlot: model.maxStartPerSlot + "",
+        minimumRepresentativeBreakSlotCount: model.minimumRepresentativeBreakSlotCount + "",
+        minimumStudentBreakSlotCount: model.minimumStudentBreakSlotCount + "",
         name: model.name,
-        slotDuration: DateParser.stringToHHmm(model.slot_duration),
-        talkSlotCount: model.talk_slot_count + ""
+        slotDuration: model.slotDuration,
+        talkSlotCount: model.talkSlotCount + ""
       })
       this.form.controls.slots.clear();
       let i = 0;

@@ -6,3 +6,5 @@ export const ApplicationModelSchema = z.object({
     companyId: z.number().int(),
     representativeIds: z.array(z.number().int())
 })
+
+export type ApplicationModel = z.infer<typeof ApplicationModelSchema>

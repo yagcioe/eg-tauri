@@ -8,7 +8,7 @@ export const ModelModelSchema = z.object({
     name: z.string().min(1),
     cabinCount: z.coerce.number().int(),
     maxStartPerSlot: z.coerce.number().int(),
-    slotDurationMinutes:z.string().time(),
+    slotDuration: z.string().time(),
     talkSlotCount: z.coerce.number().int(),
     minimumRepresentativeBreakSlotCount: z.coerce.number().int(),
     minimumStudentBreakSlotCount: z.coerce.number().int(),

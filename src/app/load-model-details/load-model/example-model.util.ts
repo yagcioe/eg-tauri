@@ -2,10 +2,12 @@ import moment from "moment";
 import { ApplicationDto, CompanyDto, ModelDto, RepresentativeDto, SlotDto, StudentDto } from "../../../specta-bindings/specta-bindings";
 import { ObjectUtil } from "../../shared/utils/object.util";
 import { LoadModelParser } from "./load-model.parser";
+import { ModelModel } from "../../shared/models/model.model";
+import { ModelParser } from "../../shared/parser/model.parser";
 
 export class ExampleModelUtil {
 
-    public static createExampleModel(): ModelDto {
+    public static createExampleModel(): ModelModel {
         const slots: SlotDto[] = [];
         for (let i = 0; i < 54; i++) {
             slots.push({
@@ -15,7 +17,7 @@ export class ExampleModelUtil {
         const students = this.createExampleStudents();
         const companies = this.createExampleCompanies();
 
-        return {
+        return ModelParser.toModel({
             name: "Mittwoch",
             cabin_count: 20,
             max_start_per_slot: 5,
@@ -28,7 +30,7 @@ export class ExampleModelUtil {
             applications: this.createExampleApplications(students, companies),
             companies: this.createExampleCompanies(),
             students: ExampleModelUtil.createExampleStudents()
-        }
+        })
     }
 
     private static createExampleStudents(): StudentDto[] {
@@ -91,7 +93,7 @@ export class ExampleModelUtil {
     }
 
     private static createExampleCompany(opt: { id: number, name: string }): CompanyDto {
-        return { ...opt, comment: "", representatives: [LoadModelParser.createDefaultRepresentative()] }
+        return { ...opt, representatives: [LoadModelParser.createDefaultRepresentative()] }
     }
 
 

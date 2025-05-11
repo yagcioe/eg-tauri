@@ -9,7 +9,7 @@ export class DateParser {
         return this.toFormat(duration, "HH:mm")
     }
 
-    public static stringtoHHmmss(duration: string): string {
+    public static stringToHHmmss(duration: string): string {
         return this.durationToHHmmss(moment.duration(duration))
     }
 

@@ -4,7 +4,6 @@ use super::booking_dto::BookingDto;
 #[derive(serde::Serialize, serde::Deserialize, specta::Type, Debug)]
 pub struct RepresentativeDto {
     id: u32,
-    name: String,
     availability: Vec<AvailabilityDto>,
     bookings: Vec<BookingDto>,
 }

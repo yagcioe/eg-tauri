@@ -1,6 +1,6 @@
 import { z } from "zod";
 
 export const TalkModelSchema = z.object({
-    startTime: z.date(),
+    startTime: z.string().time(),
     applicationId: z.number().int(),
 })

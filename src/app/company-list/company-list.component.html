@@ -1,1 +1,40 @@
-<p>company-list works!</p>
+<table mat-table matSort (matSortChange)="tableSort.set($event)" [dataSource]="sortedTableData()">
+    <ng-container matColumnDef="id">
+        <th mat-header-cell mat-sort-header="id" *matHeaderCellDef>ID</th>
+        <td mat-cell *matCellDef="let company"><code>{{company.id}}</code></td>
+    </ng-container>
+
+    <ng-container matColumnDef="name">
+        <th mat-header-cell mat-sort-header="name" *matHeaderCellDef>Unternehmen</th>
+        <td mat-cell *matCellDef="let company"> {{company.name}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="representatives">
+        <th mat-header-cell *matHeaderCellDef>Vertreter</th>
+        <td mat-cell *matCellDef="let company">
+            <div class="flex-col align-center" style="display: inline-flex; justify-content: start;">
+                <div class="grid align-center" style="grid-template-columns: auto auto auto auto auto;">
+                    @let companyForm = availabilityForm.controls[company.index];
+                    @for(representative of company.representatives; track representative.id){
+                    Vertreter&nbsp;{{representative.id}}
+                    @let fromGroup = companyForm.controls[representative.index];
+                    <mat-checkbox [formControl]="fromGroup.controls.isAlwaysAvailable">Immer verfügbar</mat-checkbox>
+                    <app-time-picker label="Verfügbar ab"
+                        [control]="fromGroup.controls.availableFrom"></app-time-picker>
+                    <app-time-picker label="Verfügbar bis" [control]="fromGroup.controls.availableTo"></app-time-picker>
+
+                    @let canDelete = company.representatives.length > 1;
+                    <button mat-icon-button class="small-icon-button" [disabled]="!canDelete"
+                        (click)="onDeleteRepresentative(company, representative)"><mat-icon
+                            [color]="canDelete?'accent': undefined">delete</mat-icon></button>
+                    }
+                </div>
+                <button mat-mini-fab (click)="onAddRepresentative(company)"><mat-icon>add</mat-icon></button>
+
+            </div>
+        </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+</table>

@@ -1,0 +1,6 @@
+@use "./variables/distance" as dist;
+
+.grid {
+    display: grid;
+    gap: dist.$medium-gap;
+}

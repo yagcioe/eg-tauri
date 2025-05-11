@@ -1,7 +1,9 @@
 import moment from "moment";
-import { CompanyDto, ModelDto, MyKonParticipationExportCsvRow, RepresentativeDto, SlotDto, StudentDto } from "../../../specta-bindings/specta-bindings";
-import { ObjectUtil } from "../../shared/utils/object.util";
+import { CompanyDto, MyKonParticipationExportCsvRow, RepresentativeDto, SlotDto, StudentDto } from "../../../specta-bindings/specta-bindings";
+import { ModelModel } from "../../shared/models/model.model";
 import { DateParser } from "../../shared/parser/date.parser";
+import { ModelParser } from "../../shared/parser/model.parser";
+import { ObjectUtil } from "../../shared/utils/object.util";
 
 export class LoadModelParser {
     public static readonly defaultCabinCount = 20;
@@ -12,7 +14,7 @@ export class LoadModelParser {
     public static readonly defaultMinimumStudentBreakSlotCount = 2;
     public static readonly defaultSlotDuration = moment.duration(10, "minutes")
 
-    public static toModel(rows: MyKonParticipationExportCsvRow[], name: string): ModelDto {
+    public static toModel(rows: MyKonParticipationExportCsvRow[], name: string): ModelModel {
         const slots: SlotDto[] = [];
         for (let i = 0; i < 54; i++) {
             slots.push({
@@ -20,7 +22,6 @@ export class LoadModelParser {
             })
         };
         const companies: CompanyDto[] = rows.map(r => ({
-            comment: "",
             id: r.event_id,
             name: r.event_name,
             representatives: [this.createDefaultRepresentative()]
@@ -33,7 +34,7 @@ export class LoadModelParser {
         const applications = rows.map(row => ({ company_id: row.event_id, id: row.participation_id, representative_ids: companyMap[row.event_id].representatives.map(r => r.id), student_id: row.user_id }));
         debugger;
         const slot_duration = DateParser.durationToHHmm(this.defaultSlotDuration);
-        return {
+        return ModelParser.toModel({
             name,
             cabin_count: this.defaultCabinCount,
             max_start_per_slot: this.defaultMaxStartPerSlot,
@@ -46,7 +47,7 @@ export class LoadModelParser {
             applications,
             companies,
             students,
-        }
+        })
     }
 
     public static createDefaultRepresentative(): RepresentativeDto {
@@ -54,7 +55,6 @@ export class LoadModelParser {
             availability: [],
             bookings: [],
             id: 0,
-            name: "Standartvertreter"
         }
     }
 }

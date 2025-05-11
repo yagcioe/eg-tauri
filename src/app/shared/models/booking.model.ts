@@ -5,3 +5,5 @@ export const BookingModelSchema = z.object({
     cabin: z.number().int(),
     talks: z.array(TalkModelSchema),
 })
+
+export type BookingModel = z.infer<typeof BookingModelSchema>
