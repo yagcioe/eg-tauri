@@ -11,9 +11,9 @@ use tauri_helper::auto_collect_command;
 #[specta::specta]
 #[auto_collect_command]
 pub fn open_csv_file(
-    filepath: String,
+    fileHandle: String,
 ) -> Result<HashMap<NaiveDate, Vec<MyKonParticipationExportCsvRow>>, String> {
-    let path = Path::new(&filepath);
+    let path = Path::new(&fileHandle);
     let display = path.display();
 
     let file = match File::open(&path) {
@@ -51,8 +51,8 @@ pub fn open_csv_file(
 #[tauri::command]
 #[specta::specta]
 #[auto_collect_command]
-pub fn load_model_json_file(filepath: String) -> Result<ModelDto, String> {
-    let path = Path::new(&filepath);
+pub fn load_model_json_file(fileHandle: String) -> Result<ModelDto, String> {
+    let path = Path::new(&fileHandle);
     let display = path.display();
 
     let mut file = match File::open(&path) {
@@ -62,7 +62,7 @@ pub fn load_model_json_file(filepath: String) -> Result<ModelDto, String> {
 
     let mut json_string = String::new();
     file.read_to_string(&mut json_string)
-        .map_err(|_| format!("could not read file: {}", filepath))?;
+        .map_err(|_| format!("could not read file: {}", fileHandle))?;
 
     let model: ModelDto =
         serde_json::from_str(&json_string).map_err(|_| "Could not parse json file")?;

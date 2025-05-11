@@ -1,6 +1,34 @@
-<mat-drawer-container class="example-container" [hasBackdrop]="false">
+<mat-drawer-container [hasBackdrop]="false">
     <mat-drawer mode="side" opened>
-        <a [routerLink]="['']">Model auswählen</a>
+        <div class="nav-wrapper">
+            <div class="nav-section">
+                <a class="nav-item" [routerLink]="[routeSchema[routeIndex]]">Model auswählen</a>
+            </div>
+
+            @if(fileHandle(); as fileHandle){
+            <div class="nav-section">
+                <span class="nav-section-header">Definition</span>
+                <a class="nav-item" [routerLink]="['/', fileHandle, routeSchema.FILE_HANDLE.DETAILS]" routerLinkActive="active-nav-item">Allgemein</a>
+                <a class="nav-item" [routerLink]="['/', fileHandle, routeSchema.FILE_HANDLE.COMPANY]" routerLinkActive="active-nav-item">Unternehmen</a>
+                <a class="nav-item" [routerLink]="['/', fileHandle, routeSchema.FILE_HANDLE.STUDENT]" routerLinkActive="active-nav-item">Studierende</a>
+            </div>
+            <div class="nav-section">
+                <a class="nav-item" [routerLink]="['/', fileHandle, routeSchema.FILE_HANDLE.OPTIMIZATION]" routerLinkActive="active-nav-item">Optimierung</a>
+            </div>
+            <div class="nav-section">
+                <span class="nav-section-header">Ergebnis</span>
+                <a class="nav-item" [routerLink]="['/', fileHandle, routeSchema.FILE_HANDLE.COMPANY_SCHEDULE]" routerLinkActive="active-nav-item">Unternehmen
+                    Zeitplan</a>
+                <a class="nav-item" [routerLink]="['/', fileHandle, routeSchema.FILE_HANDLE.STUDENT_SCHEDULE]" routerLinkActive="active-nav-item">Studierenden
+                    Zeitplan</a>
+            </div>
+            <div class="nav-section">
+                <a class="nav-item" [routerLink]="['/', fileHandle, routeSchema.FILE_HANDLE.EXPORT]" routerLinkActive="active-nav-item">Export</a>
+            </div>
+            }
+        </div>
     </mat-drawer>
-    <mat-drawer-content><main><router-outlet></router-outlet></main></mat-drawer-content>
+    <mat-drawer-content>
+        <main><router-outlet></router-outlet></main>
+    </mat-drawer-content>
 </mat-drawer-container>

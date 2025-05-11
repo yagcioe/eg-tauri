@@ -1,0 +1,36 @@
+@use "../../styles/variables/distance.scss" as dist;
+@use "../../styles/flex.scss" as flex;
+
+mat-drawer-container {
+    height: 100%;
+}
+
+.nav-wrapper {
+    padding: dist.$medium-gap;
+    min-height: fit-content;
+}
+
+.nav-section {
+    & ~ .nav-section {
+        margin-top: dist.$medium-gap;
+        border-top: 1px solid black;
+    }
+    @include flex.flex-base();
+    flex-direction: column;
+}
+
+.nav-item {
+    color: inherit;
+    text-decoration: none;
+    &:hover {
+        color: magenta;
+    }
+    &.active-nav-item {
+        text-decoration: underline;
+    }
+}
+
+.nav-section-header {
+    font-size: small;
+    cursor: default;
+}

@@ -3,6 +3,7 @@ import { MatError } from '@angular/material/input';
 import { LoadModelService } from '../load-model.service';
 import { ExampleModelUtil } from './example-model.util';
 import { Router } from '@angular/router';
+import { ROUTE_SCHEMA } from '../../app.routes';
 
 @Component({
   selector: 'app-load-model',
@@ -22,6 +23,6 @@ export class LoadModelComponent {
     const filePath = await this.loadModelService.openModelJsonFile();
     if (!filePath) return;
 
-    this.router.navigate(["file", encodeURI(filePath), "details"])
+    this.router.navigate([encodeURI(filePath), ROUTE_SCHEMA.FILE_HANDLE.DETAILS])
   }
 }

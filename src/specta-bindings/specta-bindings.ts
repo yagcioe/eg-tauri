@@ -5,6 +5,14 @@
 
 
 export const commands = {
+async loadModelJsonFile(fileHandle: string) : Promise<Result<ModelDto, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("load_model_json_file", { fileHandle }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 async saveModelJsonFile(filePath: string, model: ModelDto) : Promise<Result<string, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("save_model_json_file", { filePath, model }) };
@@ -13,17 +21,9 @@ async saveModelJsonFile(filePath: string, model: ModelDto) : Promise<Result<stri
     else return { status: "error", error: e  as any };
 }
 },
-async loadModelJsonFile(filepath: string) : Promise<Result<ModelDto, string>> {
+async openCsvFile(fileHandle: string) : Promise<Result<Partial<{ [key in string]: MyKonParticipationExportCsvRow[] }>, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("load_model_json_file", { filepath }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-async openCsvFile(filepath: string) : Promise<Result<Partial<{ [key in string]: MyKonParticipationExportCsvRow[] }>, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("open_csv_file", { filepath }) };
+    return { status: "ok", data: await TAURI_INVOKE("open_csv_file", { fileHandle }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };

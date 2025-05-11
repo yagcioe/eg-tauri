@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute } from '@angular/router';
-import { map, merge, switchMap } from 'rxjs';
+import { map, merge, Observable, of, switchMap } from 'rxjs';
 import { LoadModelService } from '../load-model-details/load-model.service';
 import { TimePickerComponent } from '../shared/components/time-picker/time-picker.component';
 import { ModelModelSchema } from '../shared/models/model.model';
@@ -27,8 +27,8 @@ export class ModelDetailsComponent {
   private readonly loadModelService = inject(LoadModelService);
   private readonly validatorService = inject(ValidatorService);
 
-  private modelFilePath = this.activeRoute.params.pipe(map(params => decodeURI(params["filepath"]) as string), takeUntilDestroyed())
-  protected modelLoadingResult = toSignal(this.modelFilePath.pipe(switchMap(path => this.loadModelService.loadModelJsonFile(path)), takeUntilDestroyed()))
+  private modelFilePath: Observable<string | undefined> = this.activeRoute.parent?.params.pipe(map(params => decodeURI(params["fileHandle"]) as string), takeUntilDestroyed()) ?? of(undefined)
+  protected modelLoadingResult = toSignal(this.modelFilePath.pipe(switchMap(path => path ? this.loadModelService.loadModelJsonFile(path) : of(undefined)), takeUntilDestroyed()))
   protected fileName = computed(() => this.modelLoadingResult()?.fileName);
 
   protected modelContent = computed(() => {
@@ -59,11 +59,11 @@ export class ModelDetailsComponent {
     const slotDuration = moment.duration(this.form.controls.slotDuration.value);
 
     return this.form.controls.slots.controls.map((slot, index) => {
-      const time = startTime.clone().add(moment.duration(slotDuration.asMilliseconds()*index));
+      const time = startTime.clone().add(moment.duration(slotDuration.asMilliseconds() * index));
       return { slot, time: DateParser.durationToHHmm(time), index };
     })
   })), { initialValue: [] })
- 
+
 
   constructor() {
     effect(() => {

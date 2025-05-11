@@ -10,6 +10,7 @@ import { LoadModelService } from '../load-model.service';
 import { ExampleModelUtil } from '../load-model/example-model.util';
 import { LoadModelParser } from '../load-model/load-model.parser';
 import { ImportModelFormModel, ImportModelModel, ImportModelModelSchema } from './import-model.model';
+import { ROUTE_SCHEMA } from '../../app.routes';
 
 @Component({
   selector: 'app-import-model',
@@ -142,7 +143,7 @@ export class ImportModelComponent {
       return;
     }
 
-    this.router.navigate(["file", encodeURI(saveResult.filePathResult.data), "details"])
+    this.router.navigate([encodeURI(saveResult.filePathResult.data), ROUTE_SCHEMA.FILE_HANDLE.DETAILS])
   }
 
 }
