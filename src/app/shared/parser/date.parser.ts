@@ -17,7 +17,16 @@ export class DateParser {
         return this.toFormat(duration, "HH:mm:ss");
     }
 
-    private static toFormat(duration: moment.Duration, format: string): string {
-        return moment.utc(duration.asMilliseconds()).format(format)
+    public static stringToTime(duration: string): moment.Moment {
+        return this.durationToDate(moment.duration(duration));
     }
+
+    public static durationToDate(duration: moment.Duration): moment.Moment {
+        return moment.utc(duration.asMilliseconds());
+    }
+
+    private static toFormat(duration: moment.Duration, format: string): string {
+        return this.durationToDate(duration).format(format)
+    }
+
 }

@@ -13,22 +13,6 @@ async persistHandle(fileHandle: string) : Promise<Result<string, string>> {
     else return { status: "error", error: e  as any };
 }
 },
-async loadModel(filePath: string) : Promise<Result<string, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("load_model", { filePath }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-async updateModel(fileHandle: string, model: ModelDto) : Promise<Result<string | null, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("update_model", { fileHandle, model }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
 async openCsvFile(fileHandle: string) : Promise<Result<Partial<{ [key in string]: MyKonParticipationExportCsvRow[] }>, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("open_csv_file", { fileHandle }) };
@@ -45,9 +29,33 @@ async persistModel(filePath: string, model: ModelDto) : Promise<Result<string, s
     else return { status: "error", error: e  as any };
 }
 },
+async updateModel(fileHandle: string, model: ModelDto) : Promise<Result<string | null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("update_model", { fileHandle, model }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 async getModel(fileHandle: string) : Promise<Result<ModelDto | null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("get_model", { fileHandle }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async updateCompanies(fileHandle: string, companies: CompanyDto[]) : Promise<Result<string | null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("update_companies", { fileHandle, companies }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async loadModel(filePath: string) : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("load_model", { filePath }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };

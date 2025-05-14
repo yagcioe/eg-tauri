@@ -1,4 +1,4 @@
-import { Routes } from "@angular/router";
+import { Routes, CanDeactivateFn } from "@angular/router";
 import { LoadModelDetailsComponent } from "./load-model-details/load-model-details.component";
 import { ModelDetailsComponent } from "./model-details/model-details.component";
 import { SidenavWrapperComponent } from "./sidenav-wrapper/sidenav-wrapper.component";
@@ -29,7 +29,10 @@ export const routes: Routes = [
     {
         path: `:${ROUTE_SCHEMA.FILE_HANDLE[ROUTE_INDEX]}`, component: SidenavWrapperComponent, children: [
             { path: ROUTE_SCHEMA.FILE_HANDLE.DETAILS, component: ModelDetailsComponent },
-            { path: ROUTE_SCHEMA.FILE_HANDLE.COMPANY, component: CompanyListComponent },
+            {
+                path: ROUTE_SCHEMA.FILE_HANDLE.COMPANY, component: CompanyListComponent,
+                canDeactivate: [((component) => { return component.saveForm(); }) satisfies CanDeactivateFn<CompanyListComponent>]
+            },
             { path: ROUTE_SCHEMA.FILE_HANDLE.STUDENT, component: StudentListComponent },
             { path: ROUTE_SCHEMA.FILE_HANDLE.OPTIMIZATION, component: CompanyScheduleComponent },
             { path: ROUTE_SCHEMA.FILE_HANDLE.COMPANY_SCHEDULE, component: CompanyScheduleComponent },

@@ -48,7 +48,7 @@ export class ValidatorService {
     })
   }
 
-  private validatorFactory(validationErrorKey: string, predicate: (control: AbstractControl) => ValidationResult): ValidatorFn {
+  public validatorFactory(validationErrorKey: string, predicate: (control: AbstractControl) => ValidationResult): ValidatorFn {
     const validator = (control: AbstractControl) => {
 
       const validationResult = predicate(control);

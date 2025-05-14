@@ -1,4 +1,5 @@
 use crate::app_state::{AppState, ModelFile};
+use crate::models::company_dto::CompanyDto;
 
 use super::super::models::model_dto::ModelDto;
 use super::my_kon_participation_export_csv_row::MyKonParticipationExportCsvRow;
@@ -121,6 +122,26 @@ pub fn update_model(
             state
                 .models
                 .insert(file_handle_uuid, ModelFile { file_path, model });
+            Some(file_handle_uuid.to_string())
+        }
+    });
+}
+
+#[tauri::command]
+#[specta::specta]
+#[auto_collect_command]
+pub fn update_companies(
+    state: State<'_, Mutex<AppState>>,
+    file_handle: String,
+    companies: Vec<CompanyDto>,
+) -> Result<Option<String>, String> {
+    let mut state = state.lock().unwrap();
+    let file_handle_uuid =
+        Uuid::parse_str(&file_handle).map_err(|_| "Failed to parse uuid".to_string())?;
+    return Ok(match state.models.get_mut(&file_handle_uuid) {
+        None => return Err("Could not find model with respective file handle".to_string()),
+        Some(model_file) => {
+            model_file.model.companies = companies;
             Some(file_handle_uuid.to_string())
         }
     });

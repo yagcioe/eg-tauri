@@ -1,11 +1,13 @@
 import { Injectable } from '@angular/core';
 import { sep } from "@tauri-apps/api/path";
 import { open as openFileDialog, save as saveFileDialog } from '@tauri-apps/plugin-dialog';
-import { commands, DemoEvent, events } from '../../specta-bindings/specta-bindings';
+import { commands, CompanyDto, DemoEvent, events } from '../../specta-bindings/specta-bindings';
 import { ModelModel } from '../shared/models/model.model';
 import { ModelParser } from '../shared/parser/model.parser';
 import { SpectaUtil } from '../shared/utils/specta.util';
 import { toObservable } from '../shared/utils/tauri-specta-rxjs-interop';
+import { CompanyModel } from '../shared/models/company.model';
+import { CompanyParser } from '../shared/parser/company.parser';
 @Injectable({
   providedIn: 'root'
 })
@@ -81,9 +83,17 @@ export class LoadModelService {
 
     return SpectaUtil.mapResult(await commands.persistModel(filePath, ModelParser.toDto(model)), (filePath) => ({ filePath }))
   }
+  
+  public update = {
+    async model(fileHandle: string, model: ModelModel) {
+      return SpectaUtil.mapResult(await commands.updateModel(fileHandle, ModelParser.toDto(model)), (fileHandle) => ({ fileHandle }));
+    },
 
-  public async updateModel(fileHandle: string, model: ModelModel) {
-    return SpectaUtil.mapResult(await commands.updateModel(fileHandle, ModelParser.toDto(model)), (fileHandle) => ({ fileHandle }));
+    async companies(fileHandle: string, companies: CompanyModel[]) {
+      const companyDtos = companies.map(CompanyParser.toDto);
+      console.log("dtos", companyDtos)
+      return SpectaUtil.mapResult(await commands.updateCompanies(fileHandle, companyDtos), (fileHandle) => ({ fileHandle }));
+    }
   }
 
   public listenEvent() {

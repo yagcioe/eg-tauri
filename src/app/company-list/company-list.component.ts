@@ -1,5 +1,5 @@
-import { Component, computed, DestroyRef, effect, inject, linkedSignal, signal } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, linkedSignal, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -7,8 +7,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { ActivatedRoute } from '@angular/router';
-import { map, Observable, of, switchMap } from 'rxjs';
-import { ROUTE_INDEX, ROUTE_SCHEMA } from '../app.routes';
 import { LoadModelService } from '../load-model-details/load-model.service';
 import { TimePickerComponent } from '../shared/components/time-picker/time-picker.component';
 import { AvailabilityModel } from '../shared/models/availability.model';
@@ -16,13 +14,19 @@ import { CompanyModel } from '../shared/models/company.model';
 import { RepresentativeModel } from '../shared/models/representative.model';
 import { ValidatorService } from '../shared/services/validator.service';
 import { HtmlUtil } from '../shared/utils/html.util';
+import { ModelUtil } from '../shared/utils/model.util';
 import { AvailabilityFormModel, AvailabilityModelSchema } from './availabiltiy-from.model';
+import moment from 'moment';
+import { DateParser } from '../shared/parser/date.parser';
+import { MatError } from '@angular/material/input';
+import { ValidationListPipe } from "../shared/pipes/validation-list.pipe";
 
 @Component({
   selector: 'app-company-list',
-  imports: [MatTableModule, MatButtonModule, MatIconModule, MatCheckboxModule, ReactiveFormsModule, FormsModule, TimePickerComponent, MatSortModule],
+  imports: [MatTableModule, MatButtonModule, MatIconModule, MatCheckboxModule, ReactiveFormsModule, FormsModule, TimePickerComponent, MatSortModule, MatError, ValidationListPipe],
   templateUrl: './company-list.component.html',
-  styleUrl: './company-list.component.scss'
+  styleUrl: './company-list.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CompanyListComponent {
   private readonly activeRoute = inject(ActivatedRoute);
@@ -30,17 +34,9 @@ export class CompanyListComponent {
   private readonly validatorService = inject(ValidatorService);
   private readonly destroyRef = inject(DestroyRef);
 
-  private modelFileHandle: Observable<string | undefined> = this.activeRoute.parent?.params.pipe(map(params => params[ROUTE_SCHEMA.FILE_HANDLE[ROUTE_INDEX]] as string), takeUntilDestroyed()) ?? of(undefined)
-  protected modelLoadingResult = toSignal(this.modelFileHandle.pipe(switchMap(fileHandle => fileHandle ? this.loadModelService.getModel(fileHandle) : of(undefined)), takeUntilDestroyed()))
+  protected modelData = ModelUtil.createModelSignals(this.activeRoute, this.loadModelService);
 
-  protected modelContent = computed(() => {
-    const modResult = this.modelLoadingResult();
-    if (!modResult || modResult.status !== "ok") return;
-
-    return modResult.data ?? undefined;
-  });
-
-  protected companies = linkedSignal(() => this.modelContent()?.companies ?? [])
+  protected companies = linkedSignal(() => this.modelData.modelContent()?.companies ?? [])
 
   protected tableSort = signal<Sort | undefined>(undefined)
 
@@ -98,6 +94,27 @@ export class CompanyListComponent {
     })
   }
 
+
+  public async saveForm(): Promise<boolean> {
+    if (!this.availabilityForm.valid) {
+      this.availabilityForm.markAllAsTouched();
+      HtmlUtil.scrollToFirstInvalidElement();
+      return false;
+    }
+    const fileHandle = this.modelData.fileHandle();
+    if (!fileHandle) return false;
+
+    const companies = this.getCompanySaveModels();
+    if (!companies) return false;
+    console.log(companies);
+    const updateResult = (await this.loadModelService.update.companies(fileHandle, companies));
+    if (updateResult.status !== "ok") {
+      console.error(updateResult.error);
+      return false;
+    }
+    return true;
+  }
+
   protected onDeleteRepresentative(company: CompanyModel & { index: number }, representative: RepresentativeModel & { index: number }): void {
     this.availabilityForm.controls[company.index].removeAt(representative.index);
     company.representatives = company.representatives.splice(representative.index, 1)
@@ -141,6 +158,15 @@ export class CompanyListComponent {
       availableFrom: new FormControl(availability?.start ?? null, { validators: [this.validatorService.required(), this.validatorService.zodObject(AvailabilityModelSchema, "availableFrom")] }),
       availableTo: new FormControl(availability?.end ?? null, { validators: [this.validatorService.required(), this.validatorService.zodObject(AvailabilityModelSchema, "availableTo")] }),
       isAlwaysAvailable: new FormControl<boolean>(!availability, { nonNullable: true, validators: [this.validatorService.zodObject(AvailabilityModelSchema, "isAlwaysAvailable")] })
+    }, {
+      validators: [this.validatorService.validatorFactory("endTimeMustBeforeStartTime", (control) => {
+        const formGroup = control as FormGroup<AvailabilityFormModel>;
+        const start = formGroup.controls.availableFrom.getRawValue();
+        const end = formGroup.controls.availableTo.getRawValue();
+        const isAlwaysAvailable = formGroup.controls.isAlwaysAvailable.getRawValue();
+        if (isAlwaysAvailable || !start || !end || DateParser.stringToTime(start).isBefore(DateParser.stringToTime(end))) return { status: "valid" };
+        return { status: "error", message: signal('"Verfügbar ab" muss kleiner sein als "Verfügbar bis"') }
+      })]
     });
 
     const setAvailability = (isAlwaysAvailable: boolean) => {
