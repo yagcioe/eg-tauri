@@ -1,11 +1,4 @@
 <div class="flex-col">
-    <mat-form-field>
-        <mat-label>Modellname</mat-label>
-        <input matInput [formControl]="form.controls.name" />
-        @for (error of form.controls.name.errors | validationList; track $index) {
-        <mat-error>{{error()}}</mat-error>
-        }
-    </mat-form-field>
     <div class="flex-default">
         <mat-form-field style="flex: 1;">
             <mat-label>Kabinenanzahl</mat-label>

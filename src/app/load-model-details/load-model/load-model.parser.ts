@@ -14,7 +14,7 @@ export class LoadModelParser {
     public static readonly defaultMinimumStudentBreakSlotCount = 2;
     public static readonly defaultSlotDuration = moment.duration(10, "minutes")
 
-    public static toModel(rows: MyKonParticipationExportCsvRow[], name: string): ModelModel {
+    public static toModel(rows: MyKonParticipationExportCsvRow[]): ModelModel {
         const slots: SlotDto[] = [];
         for (let i = 0; i < 54; i++) {
             slots.push({
@@ -34,7 +34,6 @@ export class LoadModelParser {
         const applications = rows.map(row => ({ company_id: row.event_id, id: row.participation_id, representative_ids: companyMap[row.event_id].representatives.map(r => r.id), student_id: row.user_id }));
         const slot_duration = DateParser.durationToHHmm(this.defaultSlotDuration);
         return ModelParser.toModel({
-            name,
             cabin_count: this.defaultCabinCount,
             max_start_per_slot: this.defaultMaxStartPerSlot,
             talk_slot_count: this.defaultTalkSlotCount,

@@ -22,11 +22,6 @@
             <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-datepicker #picker [startAt]="minDate()"></mat-datepicker>
         </mat-form-field>
-
-        <mat-form-field style="flex:1">
-            <mat-label>Modellname</mat-label>
-            <input matInput [formControl]="form.controls.modelName" />
-        </mat-form-field>
     </div>
 
     <div class="flex-row align-center">

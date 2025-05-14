@@ -56,20 +56,11 @@ export class ImportModelComponent {
   // TODO validate date is in loaded rows
   protected form = new FormGroup<ImportModelFormModel>({
     date: new FormControl(null, Validators.required),
-    modelName: new FormControl(null, Validators.required)
   })
 
   protected isImportFormValid = signal<boolean>(false);
 
   constructor() {
-    this.loadModelService.listenEvent().pipe(takeUntilDestroyed()).subscribe((event) => {
-      console.log(" ctor of listener", event);
-    })
-
-    this.form.controls.date.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
-      this.form.controls.modelName.setValue(moment(value)?.format("dddd") ?? null)
-    });
-
     this.form.statusChanges.pipe(takeUntilDestroyed()).subscribe((status) => {
       this.isImportFormValid.set(status === "VALID");
     })
@@ -123,7 +114,7 @@ export class ImportModelComponent {
     const rowsOfDate = rows[dateString];
     if (!rowsOfDate) return;
 
-    const model = LoadModelParser.toModel(rowsOfDate, data.modelName)
+    const model = LoadModelParser.toModel(rowsOfDate)
     const saveResult = await this.loadModelService.persistModel(model);
     await this.openModelDetail(saveResult);
   }

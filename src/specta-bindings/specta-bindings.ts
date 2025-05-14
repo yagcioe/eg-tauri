@@ -5,9 +5,9 @@
 
 
 export const commands = {
-async openCsvFile(fileHandle: string) : Promise<Result<Partial<{ [key in string]: MyKonParticipationExportCsvRow[] }>, string>> {
+async persistHandle(fileHandle: string) : Promise<Result<string, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("open_csv_file", { fileHandle }) };
+    return { status: "ok", data: await TAURI_INVOKE("persist_handle", { fileHandle }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -16,6 +16,22 @@ async openCsvFile(fileHandle: string) : Promise<Result<Partial<{ [key in string]
 async loadModel(filePath: string) : Promise<Result<string, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("load_model", { filePath }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async updateModel(fileHandle: string, model: ModelDto) : Promise<Result<string | null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("update_model", { fileHandle, model }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async openCsvFile(fileHandle: string) : Promise<Result<Partial<{ [key in string]: MyKonParticipationExportCsvRow[] }>, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("open_csv_file", { fileHandle }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -32,22 +48,6 @@ async persistModel(filePath: string, model: ModelDto) : Promise<Result<string, s
 async getModel(fileHandle: string) : Promise<Result<ModelDto | null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("get_model", { fileHandle }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-async persistHandle(fileHandle: string) : Promise<Result<string, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("persist_handle", { fileHandle }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-async updateModel(fileHandle: string, model: ModelDto) : Promise<Result<string | null, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("update_model", { fileHandle, model }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -75,7 +75,7 @@ export type AvailabilityDto = { start: string; end: string }
 export type BookingDto = { cabin: number; talks: TalkDto[] }
 export type CompanyDto = { id: number; name: string; representatives: RepresentativeDto[] }
 export type DemoEvent = { name: string }
-export type ModelDto = { name: string; cabin_count: number; max_start_per_slot: number; slot_duration: string; talk_slot_count: number; minimum_representative_break_slot_count: number; minimum_student_break_slot_count: number; day_start_time: string; students: StudentDto[]; companies: CompanyDto[]; applications: ApplicationDto[]; slots: SlotDto[] }
+export type ModelDto = { cabin_count: number; max_start_per_slot: number; slot_duration: string; talk_slot_count: number; minimum_representative_break_slot_count: number; minimum_student_break_slot_count: number; day_start_time: string; students: StudentDto[]; companies: CompanyDto[]; applications: ApplicationDto[]; slots: SlotDto[] }
 export type MyKonParticipationExportCsvRow = { participation_id: number; status: string; user_id: number; full_name: string; email: string; event_id: number; event_name: string; event_beginn_date: string }
 export type RepresentativeDto = { id: number; availability: AvailabilityDto[]; bookings: BookingDto[] }
 export type SlotDto = { penalty: number }

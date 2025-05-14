@@ -1,7 +1,6 @@
 import { FormArray, FormControl } from "@angular/forms";
 
 export interface ModelBaseDataFormModel {
-    name: FormControl<string | null>;
     cabinCount: FormControl<string | null>;
     maxStartPerSlot: FormControl<string | null>;
     slotDuration: FormControl<string | null>;

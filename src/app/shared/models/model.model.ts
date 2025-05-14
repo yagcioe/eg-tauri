@@ -5,7 +5,6 @@ import { StudentModelSchema } from "./student.model";
 import { SlotModelSchema } from "./slot.model";
 
 export const ModelModelSchema = z.object({
-    name: z.string().min(1),
     cabinCount: z.coerce.number().int(),
     maxStartPerSlot: z.coerce.number().int(),
     slotDuration: z.string().time(),

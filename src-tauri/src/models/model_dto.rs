@@ -5,7 +5,6 @@ use super::slot_dto::SlotDto;
 
 #[derive(serde::Serialize, serde::Deserialize, specta::Type, Debug, Clone)]
 pub struct ModelDto{
-    pub name: String,
     pub cabin_count: u32,
     pub max_start_per_slot: u32,
     pub slot_duration: chrono::NaiveTime,

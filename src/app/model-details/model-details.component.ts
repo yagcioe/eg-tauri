@@ -40,7 +40,6 @@ export class ModelDetailsComponent {
   });
 
   protected form = new FormGroup<ModelBaseDataFormModel>({
-    name: new FormControl(null, [this.validatorService.zodObject(ModelModelSchema, "name")]),
     cabinCount: new FormControl(null, [this.validatorService.zodObject(ModelModelSchema, "cabinCount")]),
     dayStartTime: new FormControl(null, [this.validatorService.zodObject(ModelModelSchema, "dayStartTime")]),
     maxStartPerSlot: new FormControl(null, [this.validatorService.zodObject(ModelModelSchema, "maxStartPerSlot")]),
@@ -75,7 +74,6 @@ export class ModelDetailsComponent {
         maxStartPerSlot: model.maxStartPerSlot + "",
         minimumRepresentativeBreakSlotCount: model.minimumRepresentativeBreakSlotCount + "",
         minimumStudentBreakSlotCount: model.minimumStudentBreakSlotCount + "",
-        name: model.name,
         slotDuration: model.slotDuration,
         talkSlotCount: model.talkSlotCount + ""
       })

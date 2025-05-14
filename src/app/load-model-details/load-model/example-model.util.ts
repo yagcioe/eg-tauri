@@ -18,7 +18,6 @@ export class ExampleModelUtil {
         const companies = this.createExampleCompanies();
 
         return ModelParser.toModel({
-            name: "Mittwoch",
             cabin_count: 20,
             max_start_per_slot: 5,
             talk_slot_count: 3,
